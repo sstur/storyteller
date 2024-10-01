@@ -1,0 +1,9 @@
+{
+  "name": "voice-demo",
+  "scripts": {
+    "postinstall": "npm --prefix mobile install"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "private": true
+}
