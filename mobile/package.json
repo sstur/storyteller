@@ -4,6 +4,7 @@
   "main": "src/index.ts",
   "scripts": {
     "start": "expo start",
+    "dev": "expo start",
     "clean": "rm -rf ./.expo ./dist",
     "typecheck": "tsc --noEmit",
     "lint": "eslint --max-warnings 0 .",
