@@ -7,6 +7,10 @@
     "skipLibCheck": true,
     "allowJs": true,
     "checkJs": true,
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./src/*"]
+    },
     "strict": true,
     "noUncheckedIndexedAccess": true
   },
