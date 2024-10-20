@@ -2,17 +2,12 @@ import { ChevronLeft } from '@tamagui/lucide-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import {
-  Button,
-  Image,
-  ScrollView,
-  Spinner,
-  Text,
-  YStack,
-} from '~/components/core';
+import { Button, ScrollView, Spinner, Text, YStack } from '~/components/core';
 import { API_BASE_URL } from '~/support/constants';
 import type { FullStory } from '~/types/FullStory';
 import type { Story } from '~/types/Story';
+
+import { StoryImage } from './StoryImage';
 
 async function getStory(id: string) {
   const url = new URL(`/stories/${id}/content`, API_BASE_URL);
@@ -47,12 +42,6 @@ function StoryContent(props: { story: Story }) {
 
   return (
     <YStack gap="$3">
-      <Image
-        aspectRatio={16 / 9}
-        maxWidth="100%"
-        objectFit="cover"
-        source={{ uri: data.imageUrl }}
-      />
       {data.paragraphs.map((text, i) => (
         <Text key={i} fontSize="$5">
           {text}
@@ -83,6 +72,7 @@ export function StoryView(props: { story: Story; onBackPress: () => void }) {
       <Text fontWeight="bold" fontSize="$5">
         {story.title}
       </Text>
+      <StoryImage aspectRatio={16 / 9} width="100%" story={story} />
       <StoryContent story={story} />
     </ScrollView>
   );

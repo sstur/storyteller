@@ -4,18 +4,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   Button,
-  Image,
   ScrollView,
   Spinner,
   Text,
   XStack,
   YStack,
 } from '~/components/core';
+import { StoryImage } from '~/components/StoryImage';
 import { StoryView } from '~/components/StoryView';
 import { API_BASE_URL } from '~/support/constants';
 import type { Story } from '~/types/Story';
-
-const THUMBNAIL_SIZE = 100;
 
 async function getStories() {
   const response = await fetch(API_BASE_URL + '/stories/generate');
@@ -27,55 +25,12 @@ async function getStories() {
   return data as Array<Story>;
 }
 
-async function getStoryImageUrl(id: string) {
-  const url = new URL(`/stories/${id}/images/cover`, API_BASE_URL);
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Unexpected response status: ${response.status}`);
-  }
-  const data = await response.json();
-  const imageUrl = String(Object(data).imageUrl);
-  return { imageUrl };
-}
-
-function StoryImage(props: { story: Story }) {
-  const { story } = props;
-  const { data, status, error } = useQuery({
-    queryKey: ['getStoryImageUrl', story.id],
-    queryFn: () => getStoryImageUrl(story.id),
-  });
-  if (status === 'error') {
-    return (
-      <YStack w={THUMBNAIL_SIZE} h={THUMBNAIL_SIZE}>
-        <Text>{String(error)}</Text>
-      </YStack>
-    );
-  }
-
-  if (status === 'pending') {
-    return (
-      <YStack w={THUMBNAIL_SIZE} h={THUMBNAIL_SIZE} ai="center" jc="center">
-        <Spinner />
-      </YStack>
-    );
-  }
-
-  return (
-    <Image
-      width={THUMBNAIL_SIZE}
-      height={THUMBNAIL_SIZE}
-      objectFit="cover"
-      source={{ uri: data.imageUrl }}
-    />
-  );
-}
-
 function StoryCard(props: { story: Story; onStoryPress: () => void }) {
   const { story, onStoryPress } = props;
 
   return (
     <XStack gap="$3" onPress={() => onStoryPress()}>
-      <StoryImage story={story} />
+      <StoryImage aspectRatio={1} width={100} story={story} />
       <YStack gap="$2" flex={1}>
         <Text numberOfLines={1} fontWeight="bold" fontSize="$5">
           {story.title}
