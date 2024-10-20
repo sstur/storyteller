@@ -20,6 +20,9 @@ importers:
       '@tamagui/lucide-icons':
         specifier: ^1.112.8
         version: 1.112.8(react-native-svg@15.2.0(react-native@0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0))(react@18.2.0)
+      '@tanstack/react-query':
+        specifier: ^5.59.15
+        version: 5.59.15(react@18.2.0)
       expo:
         specifier: ~51.0.38
         version: 51.0.38(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))
@@ -1806,6 +1809,14 @@ packages:
 
   '@tamagui/web@1.112.8':
     resolution: {integrity: sha512-QmHd/yie2HjIIVv8pX0w8FBo+/Si5CcrXbc/wJbTAE0VMsGqxeYaWaMkQAzYxAfdfI691JfTR3j9oxqOh9DJYw==}
+
+  '@tanstack/query-core@5.59.13':
+    resolution: {integrity: sha512-Oou0bBu/P8+oYjXsJQ11j+gcpLAMpqW42UlokQYEz4dE7+hOtVO9rVuolJKgEccqzvyFzqX4/zZWY+R/v1wVsQ==}
+
+  '@tanstack/react-query@5.59.15':
+    resolution: {integrity: sha512-QbVlAkTI78wB4Mqgf2RDmgC0AOiJqer2c5k9STOOSXGv1S6ZkY37r/6UpE8DbQ2Du0ohsdoXgFNEyv+4eDoPEw==}
+    peerDependencies:
+      react: ^18 || ^19
 
   '@total-typescript/ts-reset@0.6.1':
     resolution: {integrity: sha512-cka47fVSo6lfQDIATYqb/vO1nvFfbPw7uWLayIXIhGETj0wcOOlrlkobOMDNQOFr9QOafegUPq13V2+6vtD7yg==}
@@ -8130,6 +8141,13 @@ snapshots:
       '@tamagui/use-force-update': 1.112.8(react@18.2.0)
     transitivePeerDependencies:
       - react
+
+  '@tanstack/query-core@5.59.13': {}
+
+  '@tanstack/react-query@5.59.15(react@18.2.0)':
+    dependencies:
+      '@tanstack/query-core': 5.59.13
+      react: 18.2.0
 
   '@total-typescript/ts-reset@0.6.1': {}
 
