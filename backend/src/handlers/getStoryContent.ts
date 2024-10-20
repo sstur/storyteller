@@ -10,7 +10,8 @@ import { generateImage } from './getStoryImage';
 
 const prompt = `
 Generate a kids story based on the following title and description.
-It should be about 7 paragraphs long.
+It should be about 5 or 6 paragraphs long.
+Do NOT use markdown or any other formatting. Each paragraph should be plain prose text.
 `.trim();
 
 const resultSchema = v.object({
