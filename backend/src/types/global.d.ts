@@ -1,5 +1,5 @@
-/* eslint-disable no-var, @typescript-eslint/consistent-type-definitions */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+/* eslint-disable @typescript-eslint/consistent-type-definitions */
+import '@total-typescript/ts-reset';
 
 declare global {
   // Override some built-in types to be more helpful.
