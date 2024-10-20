@@ -1,3 +1,4 @@
+import { generateStoryImage } from './handlers/generateStoryImage';
 import { getStoryIdeas } from './handlers/getStoryIdeas';
 
 export async function handleRequest(
@@ -9,8 +10,11 @@ export async function handleRequest(
       case pathname === '/': {
         return new Response('Hello World!');
       }
-      case pathname === '/story-ideas': {
+      case pathname === '/stories/generate': {
         return await getStoryIdeas(request);
+      }
+      case pathname === '/stories/images/generate': {
+        return await generateStoryImage(request);
       }
     }
   }

@@ -4,7 +4,7 @@ import { openai } from '~/support/openai';
 import { toJsonSchema } from '~/support/toJsonSchema';
 
 const prompt = `
-Generate 5 story ideas for kids stories. For each idea write a title and a short description of the story that could be given to an LLM to generate the full story. Also generate a prompt for a cover image for this story.
+Generate 2 story ideas for kids stories. For each idea write a title and a short description of the story that could be given to an LLM to generate the full story. Also generate a prompt for a cover image for this story.
 `.trim();
 
 const resultSchema = v.object({
@@ -47,5 +47,10 @@ export async function getStoryIdeas(_request: Request): Promise<Response> {
   const rawJson = completion.choices[0]?.message.content ?? '';
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const result: Result = JSON.parse(rawJson) as never;
-  return Response.json(result.ideas);
+  const now = Date.now();
+  const ideas = result.ideas.map((idea, i) => ({
+    id: String(now + i),
+    ...idea,
+  }));
+  return Response.json(ideas);
 }
