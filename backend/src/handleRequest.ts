@@ -1,11 +1,17 @@
-// eslint-disable-next-line @typescript-eslint/require-await
+import { getStoryIdeas } from './handlers/getStoryIdeas';
+
 export async function handleRequest(
   pathname: string,
-  _request: Request,
+  request: Request,
 ): Promise<Response> {
-  switch (true) {
-    case pathname === '/': {
-      return new Response('Hello World!');
+  if (request.method === 'GET') {
+    switch (true) {
+      case pathname === '/': {
+        return new Response('Hello World!');
+      }
+      case pathname === '/story-ideas': {
+        return await getStoryIdeas(request);
+      }
     }
   }
   return new Response('Not Found', { status: 404 });
