@@ -8,7 +8,7 @@ type Image = {
   content_type: string;
 };
 
-async function generateImage(prompt: string) {
+export async function generateImage(prompt: string) {
   const requestId = await new Promise<string>((resolve, reject) => {
     fal
       .subscribe('fal-ai/flux-pro/v1.1', {
@@ -43,12 +43,8 @@ export async function getStoryImage(
     throw new HttpError(404, 'Not found');
   }
 
-  if (story.imageUrlPromise) {
-    const imageUrl = await story.imageUrlPromise;
-    return Response.json({ imageUrl });
-  }
-
-  const imageUrlPromise = generateImage(story.imagePrompt);
+  const imageUrlPromise =
+    story.imageUrlPromise ?? generateImage(story.imagePrompt);
   story.imageUrlPromise = imageUrlPromise;
 
   const imageUrl = await imageUrlPromise;

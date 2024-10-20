@@ -1,4 +1,5 @@
 import { generateStoryIdeas } from './handlers/generateStoryIdeas';
+import { getStoryContent } from './handlers/getStoryContent';
 import { getStoryImage } from './handlers/getStoryImage';
 
 export async function handleRequest(
@@ -16,6 +17,10 @@ export async function handleRequest(
       case new RegExp('^/stories/(\\d+)/images/cover$').test(pathname): {
         const id = pathname.slice(1).split('/')[1] ?? '';
         return await getStoryImage(request, { id });
+      }
+      case new RegExp('^/stories/(\\d+)/content$').test(pathname): {
+        const id = pathname.slice(1).split('/')[1] ?? '';
+        return await getStoryContent(request, { id });
       }
     }
   }

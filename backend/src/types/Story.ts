@@ -4,4 +4,5 @@ export type Story = {
   description: string;
   imagePrompt: string;
   imageUrlPromise?: Promise<string>;
+  contentPromise?: Promise<Array<string>>;
 };

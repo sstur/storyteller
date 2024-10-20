@@ -6,7 +6,7 @@ import { toJsonSchema } from '~/support/toJsonSchema';
 import type { Story } from '~/types/Story';
 
 const prompt = `
-Generate 2 story ideas for kids stories. For each idea write a title and a short description of the story that could be given to an LLM to generate the full story. Also generate a prompt for a cover image for this story.
+Generate 5 story ideas for kids stories. For each idea write a title and a short description of the story that could be given to an LLM to generate the full story. Also generate a prompt for a cover image for this story.
 `.trim();
 
 const resultSchema = v.object({
@@ -27,10 +27,6 @@ export async function generateStoryIdeas(_request: Request): Promise<Response> {
   const completion = await openai.chat.completions.create({
     model: 'gpt-4o',
     messages: [
-      {
-        role: 'system',
-        content: 'You extract email addresses into JSON data.',
-      },
       {
         role: 'user',
         content: prompt,
