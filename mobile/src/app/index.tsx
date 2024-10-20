@@ -27,9 +27,8 @@ async function getStories() {
   return data as Array<Story>;
 }
 
-async function getStoryImageUrl(prompt: string) {
-  const url = new URL('/stories/images/generate', API_BASE_URL);
-  url.searchParams.set('prompt', prompt);
+async function getStoryImageUrl(id: string) {
+  const url = new URL(`/stories/${id}/images/cover`, API_BASE_URL);
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`Unexpected response status: ${response.status}`);
@@ -43,7 +42,7 @@ function StoryImage(props: { story: Story }) {
   const { story } = props;
   const { data, status, error } = useQuery({
     queryKey: ['getStoryImageUrl', story.id],
-    queryFn: () => getStoryImageUrl(story.imagePrompt),
+    queryFn: () => getStoryImageUrl(story.id),
   });
   if (status === 'error') {
     return (
@@ -123,26 +122,26 @@ export default function StoryList() {
   const safeAreaInsets = useSafeAreaInsets();
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
 
-  if (selectedStory) {
-    return (
-      <StoryView
-        story={selectedStory}
-        onBackPress={() => setSelectedStory(null)}
-      />
-    );
-  }
-
   return (
-    <ScrollView
-      flex={1}
-      contentContainerStyle={{
-        paddingTop: safeAreaInsets.top,
-        paddingBottom: safeAreaInsets.bottom,
-        paddingHorizontal: '$3',
-        gap: '$3',
-      }}
-    >
-      <StoryListContent onStoryPress={(story) => setSelectedStory(story)} />
-    </ScrollView>
+    <>
+      {selectedStory ? (
+        <StoryView
+          story={selectedStory}
+          onBackPress={() => setSelectedStory(null)}
+        />
+      ) : null}
+      <ScrollView
+        display={selectedStory ? 'none' : undefined}
+        flex={1}
+        contentContainerStyle={{
+          paddingTop: safeAreaInsets.top,
+          paddingBottom: safeAreaInsets.bottom,
+          paddingHorizontal: '$3',
+          gap: '$3',
+        }}
+      >
+        <StoryListContent onStoryPress={(story) => setSelectedStory(story)} />
+      </ScrollView>
+    </>
   );
 }

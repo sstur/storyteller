@@ -1,19 +1,14 @@
 /* eslint-disable @typescript-eslint/prefer-promise-reject-errors */
 import { fal } from '~/support/fal';
 import { HttpError } from '~/support/HttpError';
+import { store } from '~/support/store';
 
 type Image = {
   url: string;
   content_type: string;
 };
 
-export async function generateStoryImage(request: Request): Promise<Response> {
-  const { searchParams } = new URL(request.url);
-  const prompt = searchParams.get('prompt');
-  if (!prompt) {
-    throw new HttpError(400, 'Prompt is required');
-  }
-
+async function generateImage(prompt: string) {
   const requestId = await new Promise<string>((resolve, reject) => {
     fal
       .subscribe('fal-ai/flux-pro/v1.1', {
@@ -34,6 +29,28 @@ export async function generateStoryImage(request: Request): Promise<Response> {
 
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const images = Object(result.data).images as Array<Image>;
+  return images[0]?.url ?? '';
+}
 
-  return Response.json({ imageUrl: images[0]?.url ?? '' });
+export async function getStoryImage(
+  request: Request,
+  params: { id: string },
+): Promise<Response> {
+  const { id } = params;
+  const story = store.stories.get(id);
+
+  if (!story) {
+    throw new HttpError(404, 'Not found');
+  }
+
+  if (story.imageUrlPromise) {
+    const imageUrl = await story.imageUrlPromise;
+    return Response.json({ imageUrl });
+  }
+
+  const imageUrlPromise = generateImage(story.imagePrompt);
+  story.imageUrlPromise = imageUrlPromise;
+
+  const imageUrl = await imageUrlPromise;
+  return Response.json({ imageUrl });
 }

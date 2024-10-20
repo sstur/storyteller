@@ -1,5 +1,5 @@
-import { generateStoryImage } from './handlers/generateStoryImage';
-import { getStoryIdeas } from './handlers/getStoryIdeas';
+import { generateStoryIdeas } from './handlers/generateStoryIdeas';
+import { getStoryImage } from './handlers/getStoryImage';
 
 export async function handleRequest(
   pathname: string,
@@ -11,10 +11,11 @@ export async function handleRequest(
         return new Response('Hello World!');
       }
       case pathname === '/stories/generate': {
-        return await getStoryIdeas(request);
+        return await generateStoryIdeas(request);
       }
-      case pathname === '/stories/images/generate': {
-        return await generateStoryImage(request);
+      case new RegExp('^/stories/(\\d+)/images/cover$').test(pathname): {
+        const id = pathname.slice(1).split('/')[1] ?? '';
+        return await getStoryImage(request, { id });
       }
     }
   }
