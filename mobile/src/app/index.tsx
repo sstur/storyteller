@@ -1,3 +1,4 @@
+import { RefreshControl } from 'react-native';
 import { router, Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -53,13 +54,13 @@ function StoryListContent(props: { onStoryPress: (story: Story) => void }) {
           onStoryPress={() => onStoryPress(story)}
         />
       ))}
-      <Button onPress={() => refetch()}>{t('Refresh')}</Button>
     </YStack>
   );
 }
 
 export default function StoryList() {
   const safeAreaInsets = useSafeAreaInsets();
+  const { isRefetching, refetch } = useStoryContext();
 
   return (
     <>
@@ -77,6 +78,12 @@ export default function StoryList() {
           paddingHorizontal: '$3',
           gap: '$3',
         }}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={() => refetch()}
+          />
+        }
       >
         <H1 fontSize="$9" paddingTop={safeAreaInsets.top} bg="$pageBackground">
           {t('Stories')}

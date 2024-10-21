@@ -9,6 +9,7 @@ type StoryContext = {
     | { name: 'LOADING' }
     | { name: 'ERROR'; error: Error }
     | { name: 'LOADED'; stories: Array<Story> };
+  isRefetching: boolean;
   refetch: () => void;
 };
 
@@ -36,6 +37,7 @@ export function StoryProvider(props: { children: ReactNode }) {
         : status === 'pending' || isRefetching
           ? { name: 'LOADING' }
           : { name: 'LOADED', stories: data },
+    isRefetching,
     refetch: refetch,
   };
   return (
