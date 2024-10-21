@@ -22,7 +22,7 @@ type Result = v.InferOutput<typeof resultSchema>;
 
 const resultJsonSchema = toJsonSchema(resultSchema);
 
-async function generateStoryContent(story: Story) {
+export async function generateStoryContent(story: Story) {
   const completion = await openai.chat.completions.create({
     model: 'gpt-4o',
     messages: [
@@ -57,6 +57,8 @@ export async function getStoryContent(
   if (!story) {
     throw new HttpError(404, 'Not found');
   }
+
+  console.dir(story, { depth: 9 });
 
   const contentPromise = story.contentPromise ?? generateStoryContent(story);
   story.contentPromise = contentPromise;

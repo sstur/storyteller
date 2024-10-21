@@ -13,6 +13,7 @@ import { API_BASE_URL } from '~/support/constants';
 import type { FullStory } from '~/types/FullStory';
 import type { Story } from '~/types/Story';
 
+import { StoryAudioPlayer } from './StoryAudioPlayer';
 import { StoryImage } from './StoryImage';
 
 async function getStory(id: string) {
@@ -73,6 +74,7 @@ export function StoryView(props: { story: Story }) {
         {story.title}
       </H3>
       <StoryImage aspectRatio={16 / 9} width="100%" story={story} />
+      <StoryAudioPlayer story={story} />
       <StoryContent story={story} />
     </ScrollView>
   );

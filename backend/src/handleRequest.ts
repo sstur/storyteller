@@ -1,4 +1,5 @@
 import { generateStoryIdeas } from './handlers/generateStoryIdeas';
+import { getStoryAudio } from './handlers/getStoryAudio';
 import { getStoryContent } from './handlers/getStoryContent';
 import { getStoryImage } from './handlers/getStoryImage';
 
@@ -21,6 +22,18 @@ export async function handleRequest(
       case new RegExp('^/stories/(\\d+)/content$').test(pathname): {
         const id = pathname.slice(1).split('/')[1] ?? '';
         return await getStoryContent(request, { id });
+      }
+      case new RegExp('^/stories/(\\d+)/audio/status$').test(pathname): {
+        const id = pathname.slice(1).split('/')[1] ?? '';
+        await getStoryAudio(request, { id });
+        return Response.json({ status: 'ready' });
+      }
+      case new RegExp('^/stories/(\\d+)/audio.wav$').test(pathname): {
+        const id = pathname.slice(1).split('/')[1] ?? '';
+        console.log(`Serving audio for story ${id}`);
+        const response = await getStoryAudio(request, { id });
+        console.log('Sending response.');
+        return response;
       }
     }
   }

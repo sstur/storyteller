@@ -5,4 +5,5 @@ export type Story = {
   imagePrompt: string;
   imageUrlPromise?: Promise<string>;
   contentPromise?: Promise<Array<string>>;
+  audioPromise?: Promise<Buffer>;
 };
