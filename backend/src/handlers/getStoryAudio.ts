@@ -22,7 +22,7 @@ async function generateStoryAudio(story: Story) {
     model: 'gpt-4o-audio-preview',
     // @ts-ignore
     modalities: ['text', 'audio'],
-    audio: { voice: 'alloy', format: 'wav' },
+    audio: { voice: 'alloy', format: 'mp3' },
     messages: [
       {
         role: 'user',
@@ -58,9 +58,9 @@ export async function getStoryAudio(
 
   return new Response(audioData, {
     headers: {
-      'Content-Type': 'audio/wav',
+      'Content-Type': 'audio/mp3',
       'Content-Length': audioData.length.toString(),
-      'Content-Disposition': `inline; filename="audio.wav"`,
+      'Content-Disposition': `inline; filename="audio.mp3"`,
     },
   });
 }

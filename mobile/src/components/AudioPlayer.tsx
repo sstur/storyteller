@@ -23,7 +23,7 @@ export function AudioPlayer(props: { id: string; uri: string }) {
     // TODO: try/catch on all these async calls
     const localFile = await FileSystem.downloadAsync(
       uri,
-      documentDirectory + `${now}-${id}.wav`,
+      documentDirectory + `${now}-${id}.mp3`,
     );
     // TODO: Cache this file so we don't download again next time
     console.log('Downloaded audio file to:', localFile.uri);
