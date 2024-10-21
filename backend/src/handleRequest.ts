@@ -28,7 +28,7 @@ export async function handleRequest(
         await getStoryAudio(request, { id });
         return Response.json({ status: 'ready' });
       }
-      case new RegExp('^/stories/(\\d+)/audio.wav$').test(pathname): {
+      case new RegExp('^/stories/(\\d+)/audio$').test(pathname): {
         const id = pathname.slice(1).split('/')[1] ?? '';
         const response = await getStoryAudio(request, { id });
         return response;

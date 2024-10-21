@@ -46,7 +46,7 @@ export function StoryAudioPlayer(props: Props) {
   return (
     <AudioPlayer
       id={story.id}
-      uri={`${API_BASE_URL}/stories/${story.id}/audio.wav`}
+      uri={`${API_BASE_URL}/stories/${story.id}/audio`}
     />
   );
 }
