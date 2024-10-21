@@ -1,42 +1,46 @@
 import { useEffect, useState } from 'react';
-import { Play, Square } from '@tamagui/lucide-icons';
 import { Audio } from 'expo-av';
+import * as FileSystem from 'expo-file-system';
 
 import { Button, Spinner, Text, YStack } from '~/components/core';
 
+const documentDirectory = FileSystem.documentDirectory ?? '';
+
 type State =
   | { name: 'IDLE' }
-  | { name: 'LOADING' }
+  | { name: 'STARTING_PLAYBACK' }
   | { name: 'ERROR'; error: unknown }
-  | { name: 'STARTING_PLAYBACK'; sound: Audio.Sound }
   | { name: 'PLAYING'; sound: Audio.Sound }
   | { name: 'STOPPING' };
 
-export function AudioPlayer(props: { uri: string }) {
-  const { uri } = props;
+export function AudioPlayer(props: { id: string; uri: string }) {
+  const { id, uri } = props;
   const [state, setState] = useState<State>({ name: 'IDLE' });
 
   const play = async () => {
-    console.log('>> 1');
-    setState({ name: 'LOADING' });
-    const { sound } = await Audio.Sound.createAsync(
-      { uri },
-      { shouldPlay: true },
-      (status) => {
-        console.log({ status });
-      },
-      false,
+    setState({ name: 'STARTING_PLAYBACK' });
+    const now = Date.now();
+    // TODO: try/catch on all these async calls
+    const localFile = await FileSystem.downloadAsync(
+      uri,
+      documentDirectory + `${now}-${id}.wav`,
     );
-    console.log('>> 2');
-    setState({ name: 'STARTING_PLAYBACK', sound });
-    await sound.playAsync();
-    console.log('>> 3');
+    // TODO: Cache this file so we don't download again next time
+    console.log('Downloaded audio file to:', localFile.uri);
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+      playsInSilentModeIOS: true,
+    });
+    const { sound } = await Audio.Sound.createAsync(
+      { uri: localFile.uri },
+      { shouldPlay: true },
+    );
     setState({ name: 'PLAYING', sound });
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const stop = async () => {
-    if (state.name === 'STARTING_PLAYBACK' || state.name === 'PLAYING') {
+    if (state.name === 'PLAYING') {
       const { sound } = state;
       setState({ name: 'STOPPING' });
       await sound.unloadAsync();
@@ -54,9 +58,7 @@ export function AudioPlayer(props: { uri: string }) {
     <YStack>
       {state.name === 'ERROR' ? (
         <Text>{String(state.error)}</Text>
-      ) : state.name === 'LOADING' ||
-        state.name === 'STARTING_PLAYBACK' ||
-        state.name === 'STOPPING' ? (
+      ) : state.name === 'STARTING_PLAYBACK' || state.name === 'STOPPING' ? (
         <Spinner />
       ) : state.name === 'PLAYING' ? (
         <Button onPress={() => stop()}>{t('Stop')}</Button>

@@ -60,6 +60,7 @@ export async function getStoryAudio(
     headers: {
       'Content-Type': 'audio/wav',
       'Content-Length': audioData.length.toString(),
+      'Content-Disposition': `inline; filename="audio.wav"`,
     },
   });
 }

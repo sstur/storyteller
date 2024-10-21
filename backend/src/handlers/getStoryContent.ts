@@ -58,8 +58,6 @@ export async function getStoryContent(
     throw new HttpError(404, 'Not found');
   }
 
-  console.dir(story, { depth: 9 });
-
   const contentPromise = story.contentPromise ?? generateStoryContent(story);
   story.contentPromise = contentPromise;
 
