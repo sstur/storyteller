@@ -1,8 +1,14 @@
-import { ChevronLeft } from '@tamagui/lucide-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button, ScrollView, Spinner, Text, YStack } from '~/components/core';
+import {
+  Button,
+  H3,
+  ScrollView,
+  Spinner,
+  Text,
+  YStack,
+} from '~/components/core';
 import { API_BASE_URL } from '~/support/constants';
 import type { FullStory } from '~/types/FullStory';
 import type { Story } from '~/types/Story';
@@ -51,27 +57,21 @@ function StoryContent(props: { story: Story }) {
   );
 }
 
-export function StoryView(props: { story: Story; onBackPress: () => void }) {
-  const { story, onBackPress } = props;
+export function StoryView(props: { story: Story }) {
+  const { story } = props;
   const safeAreaInsets = useSafeAreaInsets();
   return (
     <ScrollView
       flex={1}
       contentContainerStyle={{
-        paddingTop: safeAreaInsets.top,
         paddingBottom: safeAreaInsets.bottom,
         paddingHorizontal: '$3',
         gap: '$3',
       }}
     >
-      <Button
-        icon={<ChevronLeft />}
-        onPress={() => onBackPress()}
-        alignSelf="flex-start"
-      />
-      <Text fontWeight="bold" fontSize="$5">
+      <H3 fontSize="$7" pt="$2">
         {story.title}
-      </Text>
+      </H3>
       <StoryImage aspectRatio={16 / 9} width="100%" story={story} />
       <StoryContent story={story} />
     </ScrollView>

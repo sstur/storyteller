@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 
 import { FontProvider } from './FontProvider';
 import { ReactQueryProvider } from './ReactQueryProvider';
+import { StoryProvider } from './StoryProvider';
 import { ThemeProvider } from './ThemeProvider';
 
 type Props = {
@@ -14,7 +15,9 @@ export function AppProvider(props: Props) {
   return (
     <FontProvider onInitialized={onInitialized}>
       <ThemeProvider>
-        <ReactQueryProvider>{children}</ReactQueryProvider>
+        <ReactQueryProvider>
+          <StoryProvider>{children}</StoryProvider>
+        </ReactQueryProvider>
       </ThemeProvider>
     </FontProvider>
   );
