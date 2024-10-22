@@ -31,9 +31,6 @@ RUN pnpm install --frozen-lockfile --prod=false
 # Copy application code
 COPY . .
 
-# Build application
-RUN pnpm run build
-
 # Remove development dependencies
 RUN pnpm prune --prod
 

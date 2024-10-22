@@ -2,9 +2,8 @@
   "name": "backend",
   "version": "0.0.0",
   "scripts": {
-    "start": "node lib/index.js",
+    "start": "tsx src/index.ts",
     "dev": "tsx watch src/index.ts",
-    "build": "npm run clean && tsc --outDir lib/",
     "clean": "rm -rf lib",
     "typecheck": "tsc --noEmit",
     "lint": "eslint --max-warnings 0 .",
@@ -16,6 +15,7 @@
     "@fal-ai/client": "^1.0.2",
     "@valibot/to-json-schema": "^0.2.1",
     "openai": "^4.52.7",
+    "tsx": "^4.19.1",
     "valibot": "^0.42.1"
   },
   "devDependencies": {
@@ -31,7 +31,6 @@
     "eslint-plugin-functions": "^0.0.7",
     "eslint-plugin-import": "^2.29.1",
     "prettier": "^3.3.2",
-    "tsx": "^4.19.1",
     "typescript": "^5.3.3"
   },
   "prettier": {
