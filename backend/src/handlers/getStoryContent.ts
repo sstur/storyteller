@@ -1,12 +1,11 @@
 import * as v from 'valibot';
 
+import { generateImage } from '~/handlers/getStoryImage';
 import { HttpError } from '~/support/HttpError';
 import { openai } from '~/support/openai';
 import { store } from '~/support/store';
 import { toJsonSchema } from '~/support/toJsonSchema';
 import type { Story } from '~/types/Story';
-
-import { generateImage } from './getStoryImage';
 
 const prompt = `
 Generate a kids story based on the following title and description.

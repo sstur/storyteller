@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+import { generateStoryContent } from '~/handlers/getStoryContent';
 import { HttpError } from '~/support/HttpError';
 import { openai } from '~/support/openai';
 import { store } from '~/support/store';
 import type { Story } from '~/types/Story';
-
-import { generateStoryContent } from './getStoryContent';
 
 const prompt = `
 Read the following kids story in a fun, fast-paced and cheerful way.

@@ -1,11 +1,11 @@
-import './support/init';
+import '~/support/init';
 
 import { createServer } from 'http';
 import { Readable } from 'stream';
 
-import { handleRequest } from './handleRequest';
-import { HttpError } from './support/HttpError';
-import { parseIncomingMessage } from './support/parseIncomingMessage';
+import { handleRequest } from '~/handleRequest';
+import { HttpError } from '~/support/HttpError';
+import { parseIncomingMessage } from '~/support/parseIncomingMessage';
 
 const PORT = 8000;
 

@@ -1,7 +1,7 @@
-import { generateStoryIdeas } from './handlers/generateStoryIdeas';
-import { getStoryAudio } from './handlers/getStoryAudio';
-import { getStoryContent } from './handlers/getStoryContent';
-import { getStoryImage } from './handlers/getStoryImage';
+import { generateStoryIdeas } from '~/handlers/generateStoryIdeas';
+import { getStoryAudio } from '~/handlers/getStoryAudio';
+import { getStoryContent } from '~/handlers/getStoryContent';
+import { getStoryImage } from '~/handlers/getStoryImage';
 
 export async function handleRequest(
   pathname: string,
