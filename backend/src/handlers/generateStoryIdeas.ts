@@ -1,5 +1,6 @@
 import * as v from 'valibot';
 
+import { generateId } from '~/support/generateId';
 import { openai } from '~/support/openai';
 import { store } from '~/support/store';
 import { toJsonSchema } from '~/support/toJsonSchema';
@@ -47,8 +48,8 @@ export async function generateStoryIdeas(_request: Request): Promise<Response> {
   const result: Result = JSON.parse(rawJson) as never;
   const now = Date.now();
   const stories: Array<Story> = [];
-  for (const [i, idea] of result.ideas.entries()) {
-    const id = String(now + i);
+  for (const idea of result.ideas) {
+    const id = generateId(now);
     const story: Story = { id, ...idea };
     store.stories.set(id, story);
     stories.push(story);
