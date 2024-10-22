@@ -8,6 +8,7 @@
   "parserOptions": {
     "project": "./tsconfig.json"
   },
+  "ignorePatterns": ["lib"],
   "rules": {
     "eslint-comments/no-unused-disable": "warn",
     "spaced-comment": ["warn", "always"],
