@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { HttpError } from '../support/HttpError';
-import { openai } from '../support/openai';
-import { store } from '../support/store';
-import type { Story } from '../types/Story';
+import { HttpError } from '~/support/HttpError';
+import { openai } from '~/support/openai';
+import { store } from '~/support/store';
+import type { Story } from '~/types/Story';
+
 import { generateStoryContent } from './getStoryContent';
 
 const prompt = `

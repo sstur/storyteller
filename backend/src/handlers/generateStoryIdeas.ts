@@ -1,10 +1,10 @@
 import * as v from 'valibot';
 
-import { generateId } from '../support/generateId';
-import { openai } from '../support/openai';
-import { store } from '../support/store';
-import { toJsonSchema } from '../support/toJsonSchema';
-import type { Story } from '../types/Story';
+import { generateId } from '~/support/generateId';
+import { openai } from '~/support/openai';
+import { store } from '~/support/store';
+import { toJsonSchema } from '~/support/toJsonSchema';
+import type { Story } from '~/types/Story';
 
 const prompt = `
 Generate 5 story ideas for kids stories. For each idea write a title and a short description of the story that could be given to an LLM to generate the full story. Also generate a prompt for a cover image for this story.

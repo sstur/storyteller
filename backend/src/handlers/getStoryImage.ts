@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/prefer-promise-reject-errors */
-import { fal } from '../support/fal';
-import { HttpError } from '../support/HttpError';
-import { store } from '../support/store';
+import { fal } from '~/support/fal';
+import { HttpError } from '~/support/HttpError';
+import { store } from '~/support/store';
 
 type Image = {
   url: string;
