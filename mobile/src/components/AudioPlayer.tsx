@@ -30,6 +30,7 @@ export function AudioPlayer(props: { id: string; uri: string }) {
         return;
       }
       setState({ name: 'STARTING_PLAYBACK' });
+      // eslint-disable-next-line no-console
       console.log('Starting audio for story:', { id });
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: false,
