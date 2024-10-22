@@ -16,6 +16,9 @@ ENV NODE_ENV="production"
 ARG PNPM_VERSION=9.12.2
 RUN npm install -g pnpm@$PNPM_VERSION
 
+# Install LiteFS
+RUN apt-get update -y && apt-get install -y ca-certificates fuse3 sqlite3
+COPY --from=flyio/litefs:0.5 /usr/local/bin/litefs /usr/local/bin/litefs
 
 # Throw-away build stage to reduce size of final image
 FROM base as build
@@ -43,4 +46,4 @@ COPY --from=build /app /app
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 8000
-CMD [ "pnpm", "run", "start" ]
+ENTRYPOINT litefs mount
