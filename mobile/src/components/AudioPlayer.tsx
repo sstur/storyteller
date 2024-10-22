@@ -18,21 +18,20 @@ export function AudioPlayer(props: { id: string; uri: string }) {
   const [state, setState] = useState<State>({ name: 'IDLE' });
 
   const play = async () => {
+    const localFileUri = documentDirectory + `${id}.mp3`;
     setState({ name: 'STARTING_PLAYBACK' });
-    const now = Date.now();
     // TODO: try/catch on all these async calls
-    const localFile = await FileSystem.downloadAsync(
-      uri,
-      documentDirectory + `${now}-${id}.mp3`,
-    );
-    // TODO: Cache this file so we don't download again next time
-    console.log('Downloaded audio file to:', localFile.uri);
+    const fileInfo = await FileSystem.getInfoAsync(localFileUri);
+    if (!fileInfo.exists) {
+      await FileSystem.downloadAsync(uri, documentDirectory + `${id}.mp3`);
+    }
+    console.log('Playing audio for story:', { id });
     await Audio.setAudioModeAsync({
       allowsRecordingIOS: false,
       playsInSilentModeIOS: true,
     });
     const { sound } = await Audio.Sound.createAsync(
-      { uri: localFile.uri },
+      { uri: localFileUri },
       { shouldPlay: true },
     );
     setState({ name: 'PLAYING', sound });
@@ -58,12 +57,17 @@ export function AudioPlayer(props: { id: string; uri: string }) {
     <YStack>
       {state.name === 'ERROR' ? (
         <Text>{String(state.error)}</Text>
-      ) : state.name === 'STARTING_PLAYBACK' || state.name === 'STOPPING' ? (
+      ) : state.name === 'STOPPING' ? (
         <Spinner />
       ) : state.name === 'PLAYING' ? (
         <Button onPress={() => stop()}>{t('Stop')}</Button>
       ) : (
-        <Button onPress={() => play()}>{t('Play')}</Button>
+        <Button
+          disabled={state.name === 'STARTING_PLAYBACK'}
+          onPress={() => play()}
+        >
+          {t('Play')}
+        </Button>
       )}
     </YStack>
   );
