@@ -3,12 +3,15 @@
   "scripts": {
     "install:backend": "pnpm -C backend install",
     "install:mobile": "pnpm -C mobile install",
+    "clean:backend": "pnpm -C backend clean",
+    "clean:mobile": "pnpm -C mobile clean",
     "dev:backend": "pnpm -C backend dev",
     "dev:mobile": "pnpm -C mobile dev",
     "typecheck:backend": "pnpm -C backend typecheck",
     "typecheck:mobile": "pnpm -C mobile typecheck",
     "test:backend": "pnpm -C backend test",
     "test:mobile": "pnpm -C mobile test",
+    "clean": "npm-run-all --silent --aggregate-output -p clean:**",
     "typecheck": "npm-run-all --silent --aggregate-output -p typecheck:**",
     "test": "npm-run-all --silent --aggregate-output -p test:**",
     "postinstall": "npm-run-all --silent --aggregate-output -p install:**"
