@@ -26,7 +26,7 @@
       "expo-font"
     ],
     "extra": {
-      "productionApiHost": "https://api.example.com"
+      "productionApiHost": "https://api.storyteller.fm"
     }
   }
 }
