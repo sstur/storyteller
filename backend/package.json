@@ -15,6 +15,7 @@
     "@fal-ai/client": "^1.0.2",
     "@valibot/to-json-schema": "^0.2.1",
     "openai": "^4.52.7",
+    "rou3": "^0.5.1",
     "tsx": "^4.19.1",
     "valibot": "^0.42.1"
   },

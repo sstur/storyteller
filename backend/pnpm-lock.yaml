@@ -17,6 +17,9 @@ importers:
       openai:
         specifier: ^4.52.7
         version: 4.52.7
+      rou3:
+        specifier: ^0.5.1
+        version: 0.5.1
       tsx:
         specifier: ^4.19.1
         version: 4.19.1
@@ -1305,6 +1308,9 @@ packages:
 
   robot3@0.4.1:
     resolution: {integrity: sha512-hzjy826lrxzx8eRgv80idkf8ua1JAepRc9Efdtj03N3KNJuznQCPlyCJ7gnUmDFwZCLQjxy567mQVKmdv2BsXQ==}
+
+  rou3@0.5.1:
+    resolution: {integrity: sha512-OXMmJ3zRk2xeXFGfA3K+EOPHC5u7RDFG7lIOx0X1pdnhUkI8MdVrbV+sNsD80ElpUZ+MRHdyxPnFthq9VHs8uQ==}
 
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
@@ -2872,6 +2878,8 @@ snapshots:
       glob: 7.2.3
 
   robot3@0.4.1: {}
+
+  rou3@0.5.1: {}
 
   run-parallel@1.2.0:
     dependencies:
