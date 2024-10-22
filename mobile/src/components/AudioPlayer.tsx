@@ -73,9 +73,13 @@ export function AudioPlayer(props: { id: string; uri: string }) {
 
   useEffect(() => {
     return () => {
-      void stop();
+      const state = stateRef.current;
+      if (state.name === 'PLAYING' || state.name === 'PAUSED') {
+        const { sound } = state;
+        void sound.unloadAsync();
+      }
     };
-  }, [stop]);
+  }, []);
 
   return (
     <YStack>
