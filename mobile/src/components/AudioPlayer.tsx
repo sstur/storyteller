@@ -15,20 +15,23 @@ export function AudioPlayer(props: { id: string; uri: string }) {
   const [state, setState] = useState<State>({ name: 'IDLE' });
 
   const play = async () => {
-    setState({ name: 'STARTING_PLAYBACK' });
-    console.log('Playing audio for story:', { id });
-    // TODO: try/catch on all these async calls
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: false,
-      playsInSilentModeIOS: true,
-    });
-    const { sound } = await Audio.Sound.createAsync(
-      { uri },
-      { shouldPlay: true },
-      null,
-      false,
-    );
-    setState({ name: 'PLAYING', sound });
+    try {
+      console.log('Starting audio for story:', { id });
+      setState({ name: 'STARTING_PLAYBACK' });
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        playsInSilentModeIOS: true,
+      });
+      const { sound } = await Audio.Sound.createAsync(
+        { uri },
+        { shouldPlay: true },
+        null,
+        false,
+      );
+      setState({ name: 'PLAYING', sound });
+    } catch (error) {
+      setState({ name: 'ERROR', error });
+    }
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
