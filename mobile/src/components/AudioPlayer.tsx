@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Audio } from 'expo-av';
-import * as FileSystem from 'expo-file-system';
 
 import { Button, Spinner, Text, YStack } from '~/components/core';
-
-const documentDirectory = FileSystem.documentDirectory ?? '';
 
 type State =
   | { name: 'IDLE' }
@@ -18,21 +15,18 @@ export function AudioPlayer(props: { id: string; uri: string }) {
   const [state, setState] = useState<State>({ name: 'IDLE' });
 
   const play = async () => {
-    const localFileUri = documentDirectory + `${id}.mp3`;
     setState({ name: 'STARTING_PLAYBACK' });
-    // TODO: try/catch on all these async calls
-    const fileInfo = await FileSystem.getInfoAsync(localFileUri);
-    if (!fileInfo.exists) {
-      await FileSystem.downloadAsync(uri, documentDirectory + `${id}.mp3`);
-    }
     console.log('Playing audio for story:', { id });
+    // TODO: try/catch on all these async calls
     await Audio.setAudioModeAsync({
       allowsRecordingIOS: false,
       playsInSilentModeIOS: true,
     });
     const { sound } = await Audio.Sound.createAsync(
-      { uri: localFileUri },
+      { uri },
       { shouldPlay: true },
+      null,
+      false,
     );
     setState({ name: 'PLAYING', sound });
   };
