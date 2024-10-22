@@ -1,23 +1,36 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Audio } from 'expo-av';
 
-import { Button, Spinner, Text, YStack } from '~/components/core';
+import { Button, Spinner, Text, XStack, YStack } from '~/components/core';
 
 type State =
   | { name: 'IDLE' }
   | { name: 'STARTING_PLAYBACK' }
   | { name: 'ERROR'; error: unknown }
   | { name: 'PLAYING'; sound: Audio.Sound }
+  | { name: 'PAUSED'; sound: Audio.Sound; position: number }
   | { name: 'STOPPING' };
 
 export function AudioPlayer(props: { id: string; uri: string }) {
   const { id, uri } = props;
   const [state, setState] = useState<State>({ name: 'IDLE' });
+  const stateRef = useRef<State>(state);
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
-  const play = async () => {
+  const play = useCallback(async () => {
+    const state = stateRef.current;
     try {
-      console.log('Starting audio for story:', { id });
+      if (state.name === 'PAUSED') {
+        const { sound, position } = state;
+        // TODO: isResuming?
+        await sound.playFromPositionAsync(position);
+        setState({ name: 'PLAYING', sound });
+        return;
+      }
       setState({ name: 'STARTING_PLAYBACK' });
+      console.log('Starting audio for story:', { id });
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: false,
         playsInSilentModeIOS: true,
@@ -28,21 +41,35 @@ export function AudioPlayer(props: { id: string; uri: string }) {
         null,
         false,
       );
-      setState({ name: 'PLAYING', sound });
+      setState({
+        name: 'PLAYING',
+        sound,
+      });
     } catch (error) {
       setState({ name: 'ERROR', error });
     }
-  };
+  }, [id, uri]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const stop = async () => {
+  const pause = useCallback(async () => {
+    const state = stateRef.current;
+    if (state.name === 'PLAYING') {
+      // TODO: isPausing?
+      const { sound } = state;
+      const status = await sound.pauseAsync();
+      const position = status.isLoaded ? status.positionMillis : 0;
+      setState({ name: 'PAUSED', sound, position });
+    }
+  }, []);
+
+  const stop = useCallback(async () => {
+    const state = stateRef.current;
     if (state.name === 'PLAYING') {
       const { sound } = state;
       setState({ name: 'STOPPING' });
       await sound.unloadAsync();
       setState({ name: 'IDLE' });
     }
-  };
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -57,7 +84,14 @@ export function AudioPlayer(props: { id: string; uri: string }) {
       ) : state.name === 'STOPPING' ? (
         <Spinner />
       ) : state.name === 'PLAYING' ? (
-        <Button onPress={() => stop()}>{t('Stop')}</Button>
+        <XStack gap="$3">
+          <Button flex={1} onPress={() => stop()}>
+            {t('Stop')}
+          </Button>
+          <Button flex={1} onPress={() => pause()}>
+            {t('Pause')}
+          </Button>
+        </XStack>
       ) : (
         <Button
           disabled={state.name === 'STARTING_PLAYBACK'}
