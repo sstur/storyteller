@@ -1,39 +1,64 @@
+import { addRoute, createRouter, findRoute } from 'rou3';
+
 import { generateStoryIdeas } from '~/handlers/generateStoryIdeas';
 import { getStoryAudio } from '~/handlers/getStoryAudio';
 import { getStoryContent } from '~/handlers/getStoryContent';
 import { getStoryImage } from '~/handlers/getStoryImage';
 
+type Handler = (
+  request: Request,
+  params?: Record<string, string>,
+) => Response | Promise<Response>;
+
+const router = createRouter<Handler>();
+
+addRoute(router, 'GET', '/', () => {
+  return new Response('Hello World!');
+});
+
+addRoute(router, 'GET', '/stories/generate', async (request) => {
+  return await generateStoryIdeas(request);
+});
+
+addRoute(
+  router,
+  'GET',
+  '/stories/:id/images/cover',
+  async (request, params) => {
+    const id = params?.id ?? '';
+    return await getStoryImage(request, { id });
+  },
+);
+
+addRoute(router, 'GET', '/stories/:id/content', async (request, params) => {
+  const id = params?.id ?? '';
+  return await getStoryContent(request, { id });
+});
+
+addRoute(
+  router,
+  'GET',
+  '/stories/:id/audio/status',
+  async (request, params) => {
+    const id = params?.id ?? '';
+    await getStoryAudio(request, { id });
+    return Response.json({ status: 'ready' });
+  },
+);
+
+addRoute(router, 'GET', '/stories/:id/audio', async (request, params) => {
+  const id = params?.id ?? '';
+  return await getStoryAudio(request, { id });
+});
+
 export async function handleRequest(
   pathname: string,
   request: Request,
 ): Promise<Response> {
-  if (request.method === 'GET') {
-    switch (true) {
-      case pathname === '/': {
-        return new Response('Hello World!');
-      }
-      case pathname === '/stories/generate': {
-        return await generateStoryIdeas(request);
-      }
-      case new RegExp('^/stories/(\\d+)/images/cover$').test(pathname): {
-        const id = pathname.slice(1).split('/')[1] ?? '';
-        return await getStoryImage(request, { id });
-      }
-      case new RegExp('^/stories/(\\d+)/content$').test(pathname): {
-        const id = pathname.slice(1).split('/')[1] ?? '';
-        return await getStoryContent(request, { id });
-      }
-      case new RegExp('^/stories/(\\d+)/audio/status$').test(pathname): {
-        const id = pathname.slice(1).split('/')[1] ?? '';
-        await getStoryAudio(request, { id });
-        return Response.json({ status: 'ready' });
-      }
-      case new RegExp('^/stories/(\\d+)/audio$').test(pathname): {
-        const id = pathname.slice(1).split('/')[1] ?? '';
-        const response = await getStoryAudio(request, { id });
-        return response;
-      }
-    }
+  const result = findRoute(router, request.method, pathname);
+  if (result) {
+    const { data: handler, params } = result;
+    return await handler(request, params);
   }
   return new Response('Not Found', { status: 404 });
 }
