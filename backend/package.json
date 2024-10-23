@@ -13,7 +13,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "npm run typecheck && npm run lint && npm run format:check",
-    "postinstall": "npm run db:migrate:up"
+    "postinstall": "[ \"$NODE_ENV\" != \"production\" ] && npm run db:migrate:up || exit 0"
   },
   "dependencies": {
     "@fal-ai/client": "^1.0.2",
