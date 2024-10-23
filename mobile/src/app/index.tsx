@@ -25,7 +25,11 @@ function StoryCard(props: { story: Story; onStoryPress: () => void }) {
         {story.title}
       </Text>
       <XStack gap="$3" onPress={() => onStoryPress()}>
-        <StoryImage aspectRatio={1} width={100} story={story} />
+        <StoryImage
+          src={`/stories/${story.id}/images/cover`}
+          aspectRatio={1}
+          width={100}
+        />
         <YStack flex={1}>
           <Text numberOfLines={4}>{story.description}</Text>
         </YStack>

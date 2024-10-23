@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -45,10 +46,14 @@ function StoryContent(props: { story: Story }) {
 
   return (
     <YStack gap="$3">
-      {data.paragraphs.map((text, i) => (
-        <Text key={i} fontSize="$5">
-          {text}
-        </Text>
+      {data.content.map((block, i) => (
+        <Fragment key={i}>
+          {block.type === 'paragraph' ? (
+            <Text fontSize="$5">{block.text}</Text>
+          ) : (
+            <StoryImage src={block.src} aspectRatio={16 / 9} width="100%" />
+          )}
+        </Fragment>
       ))}
     </YStack>
   );
@@ -69,7 +74,11 @@ export function StoryView(props: { story: Story }) {
       <H3 fontSize="$7" pt="$2">
         {story.title}
       </H3>
-      <StoryImage aspectRatio={16 / 9} width="100%" story={story} />
+      <StoryImage
+        src={`/stories/${story.id}/images/cover`}
+        aspectRatio={16 / 9}
+        width="100%"
+      />
       <StoryAudioPlayer story={story} />
       <StoryContent story={story} />
     </ScrollView>

@@ -4,11 +4,11 @@ import * as v from 'valibot';
 import { db } from '~/db/db';
 import type { Story } from '~/db/schema';
 import { storiesTable } from '~/db/schema';
-import { getStoryImage } from '~/handlers/getStoryImage';
 import { HttpError } from '~/support/HttpError';
 import { openai } from '~/support/openai';
 import { store } from '~/support/store';
 import { toJsonSchema } from '~/support/toJsonSchema';
+import type { ContentBlock } from '~/types/ContentBlock';
 
 const prompt = `
 Generate a kids story based on the following title and description.
@@ -82,15 +82,15 @@ export async function getStoryContentResponse(
     throw new HttpError(404, 'Not found');
   }
 
-  const [paragraphs, imageUrl] = await Promise.all([
-    getStoryContent(story),
-    getStoryImage(story),
-  ]);
+  const content = await getStoryContent(story);
+
+  const contentBlocks = content.map(
+    (text): ContentBlock => ({ type: 'paragraph', text }),
+  );
 
   return Response.json({
     id: story.id,
     title: story.title,
-    paragraphs,
-    imageUrl,
+    content: contentBlocks,
   });
 }

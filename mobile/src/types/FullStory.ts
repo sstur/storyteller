@@ -1,5 +1,9 @@
+type ContentBlock =
+  | { type: 'image'; src: string }
+  | { type: 'paragraph'; text: string };
+
 export type FullStory = {
   id: string;
   title: string;
-  paragraphs: Array<string>;
+  content: Array<ContentBlock>;
 };
