@@ -1,5 +1,7 @@
 import { API_BASE_URL, APP_VERSION } from '~/support/constants';
 
+import { getInstallationId } from './getInstallationId';
+
 type Init = Omit<RequestInit, 'method'>;
 
 function createFetch(method: 'GET' | 'POST' = 'GET') {
@@ -8,6 +10,7 @@ function createFetch(method: 'GET' | 'POST' = 'GET') {
 
     const headers = new Headers(init.headers);
     headers.set('X-App-Version', APP_VERSION);
+    headers.set('X-Installation-ID', await getInstallationId());
 
     const response = await fetch(url, {
       ...init,
