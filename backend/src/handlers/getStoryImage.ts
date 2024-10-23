@@ -6,6 +6,7 @@ import type { Story } from '~/db/schema';
 import { storiesTable } from '~/db/schema';
 import { fal } from '~/support/fal';
 import { HttpError } from '~/support/HttpError';
+import { saveFileFromUrl } from '~/support/saveFile';
 import { store } from '~/support/store';
 
 type Image = {
@@ -34,7 +35,8 @@ export async function generateImage(story: Story) {
 
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const images = Object(result.data).images as Array<Image>;
-  const imageUrl = images[0]?.url ?? '';
+  const filename = `${story.id}-cover.png`;
+  const imageUrl = await saveFileFromUrl(filename, images[0]?.url ?? '');
   await db
     .update(storiesTable)
     .set({ imageUrl })
