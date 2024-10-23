@@ -5,27 +5,21 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Button,
   H1,
-  Image,
   ScrollView,
   Spinner,
   Text,
   XStack,
   YStack,
 } from '~/components/core';
+import { StoryImage } from '~/components/StoryImage';
 import { useStoryContext } from '~/providers/StoryProvider';
 import type { Story } from '~/types/Story';
 
 function StoryCard(props: { story: Story; onStoryPress: () => void }) {
   const { story, onStoryPress } = props;
-  const imageUrl = `/stories/${story.id}/images/cover`;
   return (
     <XStack gap="$3" onPress={() => onStoryPress()}>
-      <Image
-        aspectRatio={1}
-        width={100}
-        objectFit="cover"
-        source={{ uri: imageUrl }}
-      />
+      <StoryImage aspectRatio={1} width={100} story={story} />
       <YStack gap="$2" flex={1}>
         <Text numberOfLines={1} fontWeight="bold" fontSize="$5">
           {story.title}
