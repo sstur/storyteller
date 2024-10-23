@@ -42,7 +42,7 @@ export function StoryProvider(props: { children: ReactNode }) {
           ? { name: 'LOADING' }
           : { name: 'LOADED', stories: data },
     isRefetching,
-    refetch: refetch,
+    refetch,
   };
   return (
     <Context.Provider value={contextValue}>{props.children}</Context.Provider>

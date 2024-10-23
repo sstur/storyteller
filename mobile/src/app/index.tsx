@@ -60,7 +60,7 @@ function StoryListContent(props: { onStoryPress: (story: Story) => void }) {
 
 export default function StoryList() {
   const safeAreaInsets = useSafeAreaInsets();
-  const { isRefetching, refetch } = useStoryContext();
+  const { refetch } = useStoryContext();
 
   return (
     <>
@@ -79,10 +79,7 @@ export default function StoryList() {
           gap: '$3',
         }}
         refreshControl={
-          <RefreshControl
-            refreshing={isRefetching}
-            onRefresh={() => refetch()}
-          />
+          <RefreshControl refreshing={false} onRefresh={() => refetch()} />
         }
       >
         <H1 fontSize="$9" paddingTop={safeAreaInsets.top} bg="$pageBackground">
