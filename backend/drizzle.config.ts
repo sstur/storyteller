@@ -1,8 +1,8 @@
-import '~/support/dotenv';
+import './src/support/dotenv';
 
 import { defineConfig } from 'drizzle-kit';
 
-import { DB_FILE_NAME } from '~/support/constants';
+import { DB_FILE_NAME } from './src/support/constants';
 
 export default defineConfig({
   out: './drizzle',
