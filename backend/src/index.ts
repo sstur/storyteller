@@ -19,6 +19,8 @@ server.on('request', (req, res) => {
         const { status, message } = error;
         return new Response(message, { status });
       }
+      // eslint-disable-next-line no-console
+      console.error(error);
       return new Response(String(error), { status: 500 });
     })
     .then((response) => {
