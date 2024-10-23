@@ -5,14 +5,9 @@ import { db } from '~/db/db';
 import type { Story } from '~/db/schema';
 import { storiesTable } from '~/db/schema';
 import { generateStoryContent } from '~/handlers/getStoryContent';
-import {
-  CLOUDFLARE_ACCOUNT_ID,
-  CLOUDFLARE_API_TOKEN,
-  CLOUDFLARE_BUCKET_NAME,
-  CLOUDFLARE_PUBLIC_HOSTNAME,
-} from '~/support/constants';
 import { HttpError } from '~/support/HttpError';
 import { openai } from '~/support/openai';
+import { saveFile } from '~/support/saveFile';
 import { store } from '~/support/store';
 
 const prompt = `
@@ -51,31 +46,7 @@ async function generateStoryAudio(story: Story) {
   );
 
   const filename = `${id}-audio.mp3`;
-  const response = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/r2/buckets/${CLOUDFLARE_BUCKET_NAME}/objects/${filename}`,
-    {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${CLOUDFLARE_API_TOKEN}`,
-        'Content-Type': 'audio/mp3',
-      },
-      body: audioData,
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to upload audio file to R2: ${response.status} ${response.statusText}`,
-    );
-  }
-
-  const result = await response.json();
-
-  if (Object(result).success !== true) {
-    throw new Error(`Unsuccessful upload to R2: ${JSON.stringify(result)}`);
-  }
-
-  const audioUrl = `https://${CLOUDFLARE_PUBLIC_HOSTNAME}/${filename}`;
+  const audioUrl = await saveFile(filename, 'audio/mp3', audioData);
   await db
     .update(storiesTable)
     .set({ audioUrl })
