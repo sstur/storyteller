@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { RefreshControl } from 'react-native';
 import { router, Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -6,6 +7,7 @@ import {
   Button,
   H1,
   ScrollView,
+  Separator,
   Spinner,
   Text,
   XStack,
@@ -49,12 +51,11 @@ function StoryListContent(props: { onStoryPress: (story: Story) => void }) {
   }
   return (
     <YStack gap="$3">
-      {state.stories.map((story) => (
-        <StoryCard
-          key={story.id}
-          story={story}
-          onStoryPress={() => onStoryPress(story)}
-        />
+      {state.stories.map((story, i) => (
+        <Fragment key={story.id}>
+          {i !== 0 ? <Separator /> : null}
+          <StoryCard story={story} onStoryPress={() => onStoryPress(story)} />
+        </Fragment>
       ))}
     </YStack>
   );
