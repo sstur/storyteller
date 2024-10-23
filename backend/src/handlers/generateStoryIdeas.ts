@@ -66,6 +66,8 @@ export async function generateStoryIdeas(_request: Request): Promise<Response> {
   }
   return Response.json({
     success: true,
-    stories,
+    stories: stories.map(({ id, title, description }) => {
+      return { id, title, description };
+    }),
   });
 }
