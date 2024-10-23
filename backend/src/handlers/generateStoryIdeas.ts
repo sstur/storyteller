@@ -1,10 +1,11 @@
 import * as v from 'valibot';
 
+import { db } from '~/db/db';
+import type { Story } from '~/db/schema';
+import { storiesTable } from '~/db/schema';
 import { generateId } from '~/support/generateId';
 import { openai } from '~/support/openai';
-import { store } from '~/support/store';
 import { toJsonSchema } from '~/support/toJsonSchema';
-import type { Story } from '~/types/Story';
 
 const prompt = `
 Generate 5 story ideas for kids stories. For each idea write a title and a short description of the story that could be given to an LLM to generate the full story. Also generate a prompt for a cover image for this story.
@@ -48,11 +49,23 @@ export async function generateStoryIdeas(_request: Request): Promise<Response> {
   const result: Result = JSON.parse(rawJson) as never;
   const now = Date.now();
   const stories: Array<Story> = [];
-  for (const idea of result.ideas) {
+  for (const { title, description, imagePrompt } of result.ideas) {
     const id = generateId(now);
-    const story: Story = { id, ...idea };
-    store.stories.set(id, story);
+    const story: Story = {
+      id,
+      title,
+      description,
+      imagePrompt,
+      imageUrl: null,
+      audioUrl: null,
+      content: null,
+    };
+    // TODO: Kick off the image/content generation
+    await db.insert(storiesTable).values(story);
     stories.push(story);
   }
-  return Response.json(stories);
+  return Response.json({
+    success: true,
+    stories,
+  });
 }

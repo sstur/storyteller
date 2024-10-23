@@ -1,5 +1,5 @@
-import type { Story } from '~/types/Story';
-
 export const store = {
-  stories: new Map<string, Story>(),
+  imageGenPromises: new Map<string, Promise<string>>(),
+  contentGenPromises: new Map<string, Promise<Array<string>>>(),
+  audioGenPromises: new Map<string, Promise<string>>(),
 };

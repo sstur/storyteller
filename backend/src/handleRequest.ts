@@ -1,9 +1,9 @@
 import { addRoute, createRouter, findRoute } from 'rou3';
 
 import { generateStoryIdeas } from '~/handlers/generateStoryIdeas';
-import { getStoryAudio } from '~/handlers/getStoryAudio';
-import { getStoryContent } from '~/handlers/getStoryContent';
-import { getStoryImage } from '~/handlers/getStoryImage';
+import { getStoryAudioResponse } from '~/handlers/getStoryAudio';
+import { getStoryContentResponse } from '~/handlers/getStoryContent';
+import { getStoryImageResponse } from '~/handlers/getStoryImage';
 
 type Handler = (
   request: Request,
@@ -26,13 +26,13 @@ addRoute(
   '/stories/:id/images/cover',
   async (request, params) => {
     const id = params?.id ?? '';
-    return await getStoryImage(request, { id });
+    return await getStoryImageResponse(request, { id });
   },
 );
 
 addRoute(router, 'GET', '/stories/:id/content', async (request, params) => {
   const id = params?.id ?? '';
-  return await getStoryContent(request, { id });
+  return await getStoryContentResponse(request, { id });
 });
 
 addRoute(
@@ -41,14 +41,14 @@ addRoute(
   '/stories/:id/audio/status',
   async (request, params) => {
     const id = params?.id ?? '';
-    await getStoryAudio(request, { id });
+    await getStoryAudioResponse(request, { id });
     return Response.json({ status: 'ready' });
   },
 );
 
 addRoute(router, 'GET', '/stories/:id/audio', async (request, params) => {
   const id = params?.id ?? '';
-  return await getStoryAudio(request, { id });
+  return await getStoryAudioResponse(request, { id });
 });
 
 export async function handleRequest(

@@ -1,8 +1,13 @@
-import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
-export const usersTable = sqliteTable('users_table', {
-  id: int().primaryKey({ autoIncrement: true }),
-  name: text().notNull(),
-  age: int().notNull(),
-  email: text().notNull().unique(),
+export const storiesTable = sqliteTable('stories', {
+  id: text('id').primaryKey(),
+  title: text('title').notNull(),
+  description: text('description').notNull(),
+  imagePrompt: text('image_prompt').notNull(),
+  imageUrl: text('image_url'),
+  audioUrl: text('audio_url'),
+  content: text('content', { mode: 'json' }).$type<Array<string>>(),
 });
+
+export type Story = typeof storiesTable.$inferSelect;

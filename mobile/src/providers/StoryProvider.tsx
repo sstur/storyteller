@@ -20,9 +20,13 @@ async function getStories() {
   if (!response.ok) {
     throw new Error(`Unexpected response status: ${response.status}`);
   }
-  const data = await response.json();
+  const data = Object(await response.json());
+  if (!data.success) {
+    const { error } = data;
+    throw new Error(typeof error === 'string' ? error : 'Unexpected error');
+  }
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  return data as Array<Story>;
+  return data.stories as Array<Story>;
 }
 
 export function StoryProvider(props: { children: ReactNode }) {

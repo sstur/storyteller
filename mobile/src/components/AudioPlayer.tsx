@@ -12,7 +12,7 @@ type State =
   | { name: 'STOPPING' };
 
 export function AudioPlayer(props: { id: string; uri: string }) {
-  const { id, uri } = props;
+  const { uri } = props;
   const [state, setState] = useState<State>({ name: 'IDLE' });
   const stateRef = useRef<State>(state);
   useEffect(() => {
@@ -30,8 +30,6 @@ export function AudioPlayer(props: { id: string; uri: string }) {
         return;
       }
       setState({ name: 'STARTING_PLAYBACK' });
-      // eslint-disable-next-line no-console
-      console.log('Starting audio for story:', { id });
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: false,
         playsInSilentModeIOS: true,
@@ -49,7 +47,7 @@ export function AudioPlayer(props: { id: string; uri: string }) {
     } catch (error) {
       setState({ name: 'ERROR', error });
     }
-  }, [id, uri]);
+  }, [uri]);
 
   const pause = useCallback(async () => {
     const state = stateRef.current;

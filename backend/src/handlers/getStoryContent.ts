@@ -1,11 +1,14 @@
+import { eq } from 'drizzle-orm';
 import * as v from 'valibot';
 
-import { generateImage } from '~/handlers/getStoryImage';
+import { db } from '~/db/db';
+import type { Story } from '~/db/schema';
+import { storiesTable } from '~/db/schema';
+import { getStoryImage } from '~/handlers/getStoryImage';
 import { HttpError } from '~/support/HttpError';
 import { openai } from '~/support/openai';
 import { store } from '~/support/store';
 import { toJsonSchema } from '~/support/toJsonSchema';
-import type { Story } from '~/types/Story';
 
 const prompt = `
 Generate a kids story based on the following title and description.
@@ -43,30 +46,45 @@ export async function generateStoryContent(story: Story) {
   const rawJson = completion.choices[0]?.message.content ?? '';
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const result: Result = JSON.parse(rawJson) as never;
-  return result.paragraphs;
+  const content = result.paragraphs;
+  await db
+    .update(storiesTable)
+    .set({ content })
+    .where(eq(storiesTable.id, story.id));
+  return content;
 }
 
-export async function getStoryContent(
+async function getStoryContent(story: Story) {
+  const { id } = story;
+
+  if (story.content !== null) {
+    return story.content;
+  }
+
+  const contentPromise =
+    store.contentGenPromises.get(id) ?? generateStoryContent(story);
+  store.contentGenPromises.set(id, contentPromise);
+
+  return await contentPromise;
+}
+
+export async function getStoryContentResponse(
   _request: Request,
   params: { id: string },
 ): Promise<Response> {
   const { id } = params;
-  const story = store.stories.get(id);
+  const [story] = await db
+    .select()
+    .from(storiesTable)
+    .where(eq(storiesTable.id, id));
 
   if (!story) {
     throw new HttpError(404, 'Not found');
   }
 
-  const contentPromise = story.contentPromise ?? generateStoryContent(story);
-  story.contentPromise = contentPromise;
-
-  const imageUrlPromise =
-    story.imageUrlPromise ?? generateImage(story.imagePrompt);
-  story.imageUrlPromise = imageUrlPromise;
-
   const [paragraphs, imageUrl] = await Promise.all([
-    contentPromise,
-    imageUrlPromise,
+    getStoryContent(story),
+    getStoryImage(story),
   ]);
 
   return Response.json({
