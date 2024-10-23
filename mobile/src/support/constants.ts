@@ -1,5 +1,9 @@
 import Constants from 'expo-constants';
 
+const { expoConfig } = Constants;
+
+export const APP_VERSION = expoConfig?.version ?? '0.0.0';
+
 export const API_BASE_URL = getApiBaseUrl();
 
 function getApiBaseUrl(): string {
@@ -7,7 +11,6 @@ function getApiBaseUrl(): string {
   if (apiHostFromEnv) {
     return apiHostFromEnv;
   }
-  const { expoConfig } = Constants;
   if (__DEV__) {
     // In dev, hostUri is available from mobile (but not web)
     const host = expoConfig?.hostUri ?? 'localhost';

@@ -1,7 +1,7 @@
 import { createContext, useContext, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import { API_BASE_URL } from '~/support/constants';
+import { api } from '~/support/api';
 import type { Story } from '~/types/Story';
 
 type StoryContext = {
@@ -16,7 +16,7 @@ type StoryContext = {
 const Context = createContext<StoryContext | null>(null);
 
 async function getStories() {
-  const response = await fetch(API_BASE_URL + '/stories/generate');
+  const response = await api.get('/stories/generate');
   if (!response.ok) {
     throw new Error(`Unexpected response status: ${response.status}`);
   }

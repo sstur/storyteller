@@ -1,17 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { Spinner, Text, YStack } from '~/components/core';
+import { api } from '~/support/api';
 import { API_BASE_URL } from '~/support/constants';
 import type { Story } from '~/types/Story';
 
 import { AudioPlayer } from './AudioPlayer';
 
 async function getStoryAudioStatus(id: string) {
-  const url = new URL(`/stories/${id}/audio/status`, API_BASE_URL);
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Unexpected response status: ${response.status}`);
-  }
+  const response = await api.get(`/stories/${id}/audio/status`);
   const data = await response.json();
   const status = String(Object(data).status);
   return { status };

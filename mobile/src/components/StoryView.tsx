@@ -9,7 +9,7 @@ import {
   Text,
   YStack,
 } from '~/components/core';
-import { API_BASE_URL } from '~/support/constants';
+import { api } from '~/support/api';
 import type { FullStory } from '~/types/FullStory';
 import type { Story } from '~/types/Story';
 
@@ -17,11 +17,7 @@ import { StoryAudioPlayer } from './StoryAudioPlayer';
 import { StoryImage } from './StoryImage';
 
 async function getStory(id: string) {
-  const url = new URL(`/stories/${id}/content`, API_BASE_URL);
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Unexpected response status: ${response.status}`);
-  }
+  const response = await api.get(`/stories/${id}/content`);
   const data = await response.json();
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   return data as FullStory;
