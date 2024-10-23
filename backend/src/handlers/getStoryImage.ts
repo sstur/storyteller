@@ -73,5 +73,9 @@ export async function getStoryImageResponse(
   }
 
   const imageUrl = await getStoryImage(story);
-  return Response.json({ imageUrl });
+
+  const response = await fetch(imageUrl);
+  return new Response(response.body, {
+    headers: response.headers,
+  });
 }

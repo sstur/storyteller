@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Button,
   H3,
+  Image,
   ScrollView,
   Spinner,
   Text,
@@ -14,7 +15,6 @@ import type { FullStory } from '~/types/FullStory';
 import type { Story } from '~/types/Story';
 
 import { StoryAudioPlayer } from './StoryAudioPlayer';
-import { StoryImage } from './StoryImage';
 
 async function getStory(id: string) {
   const url = new URL(`/stories/${id}/content`, API_BASE_URL);
@@ -61,6 +61,7 @@ function StoryContent(props: { story: Story }) {
 export function StoryView(props: { story: Story }) {
   const { story } = props;
   const safeAreaInsets = useSafeAreaInsets();
+  const imageUrl = `/stories/${story.id}/images/cover`;
   return (
     <ScrollView
       flex={1}
@@ -73,7 +74,12 @@ export function StoryView(props: { story: Story }) {
       <H3 fontSize="$7" pt="$2">
         {story.title}
       </H3>
-      <StoryImage aspectRatio={16 / 9} width="100%" story={story} />
+      <Image
+        aspectRatio={16 / 9}
+        width="100%"
+        objectFit="cover"
+        source={{ uri: imageUrl }}
+      />
       <StoryAudioPlayer story={story} />
       <StoryContent story={story} />
     </ScrollView>
