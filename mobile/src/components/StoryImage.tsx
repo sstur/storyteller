@@ -1,4 +1,5 @@
-import { Image } from '~/components/core';
+import { Image } from 'expo-image';
+
 import { API_BASE_URL } from '~/support/constants';
 import type { Story } from '~/types/Story';
 
@@ -14,6 +15,10 @@ export function StoryImage(props: Props) {
   const url = new URL(`/stories/${story.id}/images/cover`, API_BASE_URL);
 
   return (
-    <Image {...otherProps} objectFit="cover" source={{ uri: url.toString() }} />
+    <Image
+      {...otherProps}
+      contentFit="cover"
+      source={{ uri: url.toString() }}
+    />
   );
 }
