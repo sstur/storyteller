@@ -1,4 +1,4 @@
-import '~/support/init';
+import '~/support/dotenv';
 
 import { createServer } from 'http';
 import { Readable } from 'stream';

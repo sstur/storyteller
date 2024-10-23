@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import 'dotenv/config';
+import '~/support/dotenv';
 
 import { db } from '~/db/db';
 
