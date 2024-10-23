@@ -87,9 +87,6 @@ export async function getStoryAudioResponse(
   const response = await fetch(audioUrl);
 
   return new Response(response.body, {
-    headers: {
-      'Content-Type': 'audio/mp3',
-      'Content-Disposition': `inline; filename="audio.mp3"`,
-    },
+    headers: response.headers,
   });
 }
