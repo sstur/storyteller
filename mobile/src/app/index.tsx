@@ -18,15 +18,17 @@ import type { Story } from '~/types/Story';
 function StoryCard(props: { story: Story; onStoryPress: () => void }) {
   const { story, onStoryPress } = props;
   return (
-    <XStack gap="$3" onPress={() => onStoryPress()}>
-      <StoryImage aspectRatio={1} width={100} story={story} />
-      <YStack gap="$2" flex={1}>
-        <Text numberOfLines={1} fontWeight="bold" fontSize="$5">
-          {story.title}
-        </Text>
-        <Text numberOfLines={3}>{story.description}</Text>
-      </YStack>
-    </XStack>
+    <YStack gap="$2">
+      <Text numberOfLines={1} fontWeight="bold" fontSize="$5">
+        {story.title}
+      </Text>
+      <XStack gap="$3" onPress={() => onStoryPress()}>
+        <StoryImage aspectRatio={1} width={100} story={story} />
+        <YStack flex={1}>
+          <Text numberOfLines={4}>{story.description}</Text>
+        </YStack>
+      </XStack>
+    </YStack>
   );
 }
 
