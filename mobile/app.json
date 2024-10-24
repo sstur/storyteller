@@ -3,7 +3,7 @@
     "name": "Storyteller",
     "slug": "storyteller",
     "scheme": "storyteller",
-    "version": "0.0.0",
+    "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -16,7 +16,8 @@
       "supportsTablet": true,
       "config": {
         "usesNonExemptEncryption": false
-      }
+      },
+      "bundleIdentifier": "com.sstur.storyteller"
     },
     "android": {
       "adaptiveIcon": {
@@ -29,7 +30,10 @@
       "expo-font"
     ],
     "extra": {
-      "productionApiHost": "https://api.storyteller.fm"
+      "productionApiHost": "https://api.storyteller.fm",
+      "eas": {
+        "projectId": "9f192f55-0211-494a-8c62-fd261435ec11"
+      }
     }
   }
 }
