@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Hello RN",
-    "slug": "hello-rn",
-    "scheme": "hello-rn",
+    "name": "Storyteller",
+    "slug": "storyteller",
+    "scheme": "storyteller",
     "version": "0.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
