@@ -16,7 +16,7 @@ type StoryContext = {
 const Context = createContext<StoryContext | null>(null);
 
 async function getStories() {
-  const response = await api.get('/stories/generate');
+  const response = await api.get('/stories');
   if (!response.ok) {
     throw new Error(`Unexpected response status: ${response.status}`);
   }

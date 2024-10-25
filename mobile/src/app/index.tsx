@@ -14,6 +14,7 @@ import {
 } from '~/components/core';
 import { PageHeader } from '~/components/PageHeader';
 import { StoryImage } from '~/components/StoryImage';
+import { WelcomeView } from '~/components/WelcomeView';
 import { useStoryContext } from '~/providers/StoryProvider';
 import type { Story } from '~/types/Story';
 
@@ -66,14 +67,6 @@ function StoryListContent(props: { onStoryPress: (story: Story) => void }) {
   );
 }
 
-function EmptyState() {
-  return (
-    <YStack flex={1} jc="center" ai="center">
-      <Text>{t('No stories')}</Text>
-    </YStack>
-  );
-}
-
 export default function StoryList() {
   const safeAreaInsets = useSafeAreaInsets();
   const { state, refetch, isRefetching } = useStoryContext();
@@ -118,7 +111,7 @@ export default function StoryList() {
         }
       >
         {isEmpty ? (
-          <EmptyState />
+          <WelcomeView />
         ) : (
           <StoryListContent
             onStoryPress={(story) => {

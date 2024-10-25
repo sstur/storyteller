@@ -3,10 +3,10 @@ import '~/support/dotenv';
 
 import { db } from '~/db/db';
 
-import type { Story } from '../db/schema';
+import type { InsertStoryInput } from '../db/schema';
 import { storiesTable } from '../db/schema';
 
-const stories: Array<Story> = [
+const stories: Array<InsertStoryInput> = [
   {
     id: '172956671548601234501',
     title: 'Cocoa and the Berry Bandits',

@@ -1,9 +1,10 @@
 import * as v from 'valibot';
 
 import { db } from '~/db/db';
-import type { Story } from '~/db/schema';
+import type { InsertStoryInput } from '~/db/schema';
 import { storiesTable } from '~/db/schema';
 import { generateId } from '~/support/generateId';
+import { getSessionId } from '~/support/getSessionId';
 import { openai } from '~/support/openai';
 import { toJsonSchema } from '~/support/toJsonSchema';
 
@@ -25,7 +26,8 @@ type Result = v.InferOutput<typeof resultSchema>;
 
 const resultJsonSchema = toJsonSchema(resultSchema);
 
-export async function generateStoryIdeas(_request: Request): Promise<Response> {
+export async function generateStoryIdeas(request: Request): Promise<Response> {
+  const sessionId = getSessionId(request);
   const completion = await openai.chat.completions.create({
     model: 'gpt-4o',
     messages: [
@@ -48,26 +50,24 @@ export async function generateStoryIdeas(_request: Request): Promise<Response> {
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const result: Result = JSON.parse(rawJson) as never;
   const now = Date.now();
-  const stories: Array<Story> = [];
+  // const stories: Array<InsertStoryInput> = [];
   for (const { title, description, imagePrompt } of result.ideas) {
     const id = generateId(now);
-    const story: Story = {
+    const story: InsertStoryInput = {
       id,
       title,
       description,
       imagePrompt,
-      imageUrl: null,
-      content: null,
-      audio: null,
+      createdBy: sessionId,
     };
     // TODO: Kick off the image/content generation
     await db.insert(storiesTable).values(story);
-    stories.push(story);
+    // stories.push(story);
   }
   return Response.json({
     success: true,
-    stories: stories.map(({ id, title, description }) => {
-      return { id, title, description };
-    }),
+    // stories: stories.map(({ id, title, description }) => {
+    //   return { id, title, description };
+    // }),
   });
 }

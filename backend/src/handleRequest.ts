@@ -1,3 +1,4 @@
+import { eq } from 'drizzle-orm';
 import { addRoute, createRouter, findRoute } from 'rou3';
 
 import { generateStoryIdeas } from '~/handlers/generateStoryIdeas';
@@ -7,6 +8,10 @@ import {
 } from '~/handlers/getStoryAudio';
 import { getStoryContentResponse } from '~/handlers/getStoryContent';
 import { getStoryImageResponse } from '~/handlers/getStoryImage';
+
+import { db } from './db/db';
+import { storiesTable } from './db/schema';
+import { getSessionId } from './support/getSessionId';
 
 type Handler = (
   request: Request,
@@ -19,7 +24,21 @@ addRoute(router, 'GET', '/', () => {
   return new Response('Hello World!');
 });
 
-addRoute(router, 'GET', '/stories/generate', async (request) => {
+addRoute(router, 'GET', '/stories', async (request) => {
+  const sessionId = getSessionId(request);
+  const stories = await db
+    .select()
+    .from(storiesTable)
+    .where(eq(storiesTable.createdBy, sessionId));
+  return Response.json({
+    success: true,
+    stories: stories.map(({ id, title, description }) => {
+      return { id, title, description };
+    }),
+  });
+});
+
+addRoute(router, 'POST', '/stories/generate', async (request) => {
   return await generateStoryIdeas(request);
 });
 
