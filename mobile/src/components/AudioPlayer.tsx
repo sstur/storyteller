@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  Pause as IconPause,
+  Play as IconPlay,
+  Square as IconStop,
+} from '@tamagui/lucide-icons';
 import { Audio } from 'expo-av';
 
+import type { ButtonProps } from '~/components/core';
 import { Button, Spinner, Text, XStack, YStack } from '~/components/core';
 
 type State =
@@ -116,24 +122,35 @@ export function AudioPlayer(props: Props) {
         <Spinner />
       ) : state.name === 'PLAYING' ? (
         <XStack gap="$3">
-          <Button flex={1} onPress={() => stop()}>
-            {t('Stop')}
-          </Button>
-          <Text>
-            {state.position} / {duration}
-          </Text>
-          <Button flex={1} onPress={() => pause()}>
-            {t('Pause')}
-          </Button>
+          <IconButton
+            label={t('Pause')}
+            icon={<IconPause />}
+            onPress={() => pause()}
+          />
+          <XStack flex={1} jc="center" ai="center">
+            <Text>{formatProgress(state.position, duration)}</Text>
+          </XStack>
+          <IconButton
+            label={t('Stop')}
+            icon={<IconStop />}
+            onPress={() => stop()}
+          />
         </XStack>
       ) : state.name === 'PAUSED' ? (
         <XStack gap="$3">
-          <Text flex={1}>
-            {state.position} / {duration}
-          </Text>
-          <Button flex={1} onPress={() => play()}>
-            {t('Play')}
-          </Button>
+          <IconButton
+            label={t('Play')}
+            icon={<IconPlay />}
+            onPress={() => play()}
+          />
+          <XStack flex={1} jc="center" ai="center">
+            <Text>{formatProgress(state.position, duration)}</Text>
+          </XStack>
+          <IconButton
+            label={t('Stop')}
+            icon={<IconStop />}
+            onPress={() => stop()}
+          />
         </XStack>
       ) : (
         <Button
@@ -145,4 +162,19 @@ export function AudioPlayer(props: Props) {
       )}
     </YStack>
   );
+}
+
+function IconButton(props: Omit<ButtonProps, 'children'> & { label: string }) {
+  const { label, ...otherProps } = props;
+  return <Button aria-label={label} {...otherProps} />;
+}
+
+function formatProgress(position: number, duration: number) {
+  return `${formatTime(position)} / ${formatTime(duration)}`;
+}
+
+function formatTime(ms: number) {
+  const minutes = Math.floor(ms / 60000);
+  const seconds = Math.floor((ms % 60000) / 1000);
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
