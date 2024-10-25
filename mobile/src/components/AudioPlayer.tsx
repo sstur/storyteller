@@ -36,31 +36,46 @@ export function AudioPlayer(props: Props) {
         allowsRecordingIOS: false,
         playsInSilentModeIOS: true,
       });
-      const { sound } = await Audio.Sound.createAsync(
+      const { sound, status } = await Audio.Sound.createAsync(
         { uri },
         { shouldPlay: true },
         (status) => {
           if (status.isLoaded) {
-            setState((state) => {
-              if (state.name === 'PLAYING') {
-                const position = status.positionMillis;
-                return { name: 'PLAYING', sound, position };
-              }
-              return state;
-            });
+            const state = stateRef.current;
+
+            if (state.name === 'STARTING_PLAYBACK' && status.isPlaying) {
+              const position = status.positionMillis;
+              setState({ name: 'PLAYING', sound, position });
+              return;
+            }
+
+            if (state.name === 'PLAYING' && !status.isPlaying) {
+              // Playback is complete
+              void stop();
+              return;
+            }
+
+            if (state.name === 'PLAYING') {
+              const position = status.positionMillis;
+              setState({ name: 'PLAYING', sound, position });
+              return;
+            }
           }
         },
         false,
       );
-      setState({
-        name: 'PLAYING',
-        sound,
-        position: 0,
-      });
+      if (status.isLoaded && status.isPlaying) {
+        setState({
+          name: 'PLAYING',
+          sound,
+          position: status.positionMillis,
+        });
+      }
     } catch (error) {
       setState({ name: 'ERROR', error });
     }
-  }, [uri]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const pause = useCallback(async () => {
     const state = stateRef.current;
