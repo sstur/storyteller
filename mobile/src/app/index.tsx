@@ -1,11 +1,10 @@
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import { RefreshControl } from 'react-native';
 import { router, Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   Button,
-  H1,
   ScrollView,
   Separator,
   Spinner,
@@ -13,6 +12,7 @@ import {
   XStack,
   YStack,
 } from '~/components/core';
+import { PageHeader } from '~/components/PageHeader';
 import { StoryImage } from '~/components/StoryImage';
 import { useStoryContext } from '~/providers/StoryProvider';
 import type { Story } from '~/types/Story';
@@ -67,7 +67,8 @@ function StoryListContent(props: { onStoryPress: (story: Story) => void }) {
 
 export default function StoryList() {
   const safeAreaInsets = useSafeAreaInsets();
-  const { refetch } = useStoryContext();
+  const { refetch, isRefetching } = useStoryContext();
+  const [headerHeight, setHeaderHeight] = useState(0);
 
   return (
     <>
@@ -77,21 +78,27 @@ export default function StoryList() {
           headerShown: false,
         }}
       />
+      <PageHeader
+        title={t('Stories')}
+        onLayout={(event) => {
+          setHeaderHeight(event.nativeEvent.layout.height);
+        }}
+      />
       <ScrollView
         flex={1}
-        stickyHeaderIndices={[0]}
         contentContainerStyle={{
+          paddingTop: headerHeight,
           paddingBottom: safeAreaInsets.bottom,
           paddingHorizontal: '$3',
           gap: '$3',
         }}
         refreshControl={
-          <RefreshControl refreshing={false} onRefresh={() => refetch()} />
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={() => refetch()}
+          />
         }
       >
-        <H1 fontSize="$9" paddingTop={safeAreaInsets.top} bg="$pageBackground">
-          {t('Stories')}
-        </H1>
         <StoryListContent
           onStoryPress={(story) => {
             router.push({ pathname: '/story', params: { id: story.id } });
