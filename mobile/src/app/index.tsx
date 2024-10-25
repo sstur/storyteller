@@ -66,10 +66,20 @@ function StoryListContent(props: { onStoryPress: (story: Story) => void }) {
   );
 }
 
+function EmptyState() {
+  return (
+    <YStack flex={1} jc="center" ai="center">
+      <Text>{t('No stories')}</Text>
+    </YStack>
+  );
+}
+
 export default function StoryList() {
   const safeAreaInsets = useSafeAreaInsets();
-  const { refetch, isRefetching } = useStoryContext();
+  const { state, refetch, isRefetching } = useStoryContext();
   const [headerHeight, setHeaderHeight] = useState(0);
+
+  const isEmpty = state.name === 'LOADED' && state.stories.length === 0;
 
   return (
     <>
@@ -81,6 +91,7 @@ export default function StoryList() {
       />
       <PageHeader
         title={t('Stories')}
+        opacity={state.name === 'LOADED' && state.stories.length > 0 ? 1 : 0}
         onLayout={(event) => {
           setHeaderHeight(event.nativeEvent.layout.height);
         }}
@@ -93,10 +104,10 @@ export default function StoryList() {
           bottom: safeAreaInsets.bottom,
         }}
         contentContainerStyle={{
+          flexGrow: 1,
           paddingTop: headerHeight,
           paddingBottom: safeAreaInsets.bottom,
           paddingHorizontal: '$3',
-          gap: '$3',
         }}
         refreshControl={
           <RefreshControl
@@ -106,11 +117,15 @@ export default function StoryList() {
           />
         }
       >
-        <StoryListContent
-          onStoryPress={(story) => {
-            router.push({ pathname: '/story', params: { id: story.id } });
-          }}
-        />
+        {isEmpty ? (
+          <EmptyState />
+        ) : (
+          <StoryListContent
+            onStoryPress={(story) => {
+              router.push({ pathname: '/story', params: { id: story.id } });
+            }}
+          />
+        )}
       </ScrollView>
     </>
   );
