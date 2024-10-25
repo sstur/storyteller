@@ -40,7 +40,7 @@ function StoryCard(props: { story: Story; onStoryPress: () => void }) {
 
 function StoryListContent(props: { onStoryPress: (story: Story) => void }) {
   const { onStoryPress } = props;
-  const { state, refetch } = useStoryContext();
+  const { state, refetch, isRefetching } = useStoryContext();
 
   if (state.name === 'ERROR') {
     return (
@@ -51,7 +51,8 @@ function StoryListContent(props: { onStoryPress: (story: Story) => void }) {
     );
   }
   if (state.name === 'LOADING') {
-    return <Spinner />;
+    // Don't show double spinner when pull to refresh
+    return isRefetching ? null : <Spinner />;
   }
   return (
     <YStack gap="$3">
@@ -96,6 +97,7 @@ export default function StoryList() {
           <RefreshControl
             refreshing={isRefetching}
             onRefresh={() => refetch()}
+            progressViewOffset={headerHeight}
           />
         }
       >
