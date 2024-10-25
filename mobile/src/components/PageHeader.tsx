@@ -1,7 +1,8 @@
 import type { ViewProps } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import type { StackProps } from 'tamagui';
-import { H1, YStack } from 'tamagui';
+
+import type { StackProps } from '~/components/core';
+import { H1, YStack } from '~/components/core';
 
 type Props = StackProps & {
   title: string;
