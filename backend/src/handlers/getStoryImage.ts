@@ -15,10 +15,15 @@ type Image = {
 };
 
 export async function generateImage(story: Story) {
+  const prompt = [
+    story.imagePrompt,
+    // Not sure if this is the right way to add directives like this
+    'There is no text in the image.',
+  ].join('\n');
   const requestId = await new Promise<string>((resolve, reject) => {
     fal
       .subscribe('fal-ai/flux-pro/v1.1', {
-        input: { prompt: story.imagePrompt },
+        input: { prompt },
         logs: true,
         onQueueUpdate: (update) => {
           if (update.status === 'COMPLETED') {
