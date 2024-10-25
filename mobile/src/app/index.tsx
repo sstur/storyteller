@@ -87,6 +87,11 @@ export default function StoryList() {
       />
       <ScrollView
         flex={1}
+        automaticallyAdjustsScrollIndicatorInsets={false}
+        scrollIndicatorInsets={{
+          top: headerHeight,
+          bottom: safeAreaInsets.bottom,
+        }}
         contentContainerStyle={{
           paddingTop: headerHeight,
           paddingBottom: safeAreaInsets.bottom,
