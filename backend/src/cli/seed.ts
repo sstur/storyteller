@@ -23,7 +23,11 @@ const stories: Array<Story> = [
       "Impressed by Cocoa's boldness, the squirrels decided to negotiate. In exchange for helping gather more berries and an invitation to their jungle paradise festival, the Berry Bandits agreed to share their stash. With the incident resolved and new friendships blooming, the jungle was soon buzzing with excitement yet again. Cocoa had discovered her hidden potential, unlocking a rare spice of courage, kindness, and creativity that enriched not only the chocolate treats but also every heart at the grand chocolate festival.",
     ],
     imageUrl: 'https://cdn.storyteller.fm/172956671548601234501-cover.jpg',
-    audioUrl: 'https://cdn.storyteller.fm/172956671548601234501-audio.mp3',
+    audio: {
+      url: 'https://cdn.storyteller.fm/172956671548601234501-audio.mp3',
+      mimeType: 'audio/mp3',
+      duration: 214100,
+    },
   },
 ];
 

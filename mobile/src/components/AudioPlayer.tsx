@@ -7,12 +7,14 @@ type State =
   | { name: 'IDLE' }
   | { name: 'STARTING_PLAYBACK' }
   | { name: 'ERROR'; error: unknown }
-  | { name: 'PLAYING'; sound: Audio.Sound }
+  | { name: 'PLAYING'; sound: Audio.Sound; position: number }
   | { name: 'PAUSED'; sound: Audio.Sound; position: number }
   | { name: 'STOPPING' };
 
-export function AudioPlayer(props: { id: string; uri: string }) {
-  const { uri } = props;
+type Props = { id: string; uri: string; duration: number };
+
+export function AudioPlayer(props: Props) {
+  const { uri, duration } = props;
   const [state, setState] = useState<State>({ name: 'IDLE' });
   const stateRef = useRef<State>(state);
   useEffect(() => {
@@ -26,7 +28,7 @@ export function AudioPlayer(props: { id: string; uri: string }) {
         const { sound, position } = state;
         // TODO: isResuming?
         await sound.playFromPositionAsync(position);
-        setState({ name: 'PLAYING', sound });
+        setState({ name: 'PLAYING', sound, position });
         return;
       }
       setState({ name: 'STARTING_PLAYBACK' });
@@ -37,12 +39,23 @@ export function AudioPlayer(props: { id: string; uri: string }) {
       const { sound } = await Audio.Sound.createAsync(
         { uri },
         { shouldPlay: true },
-        null,
+        (status) => {
+          if (status.isLoaded) {
+            setState((state) => {
+              if (state.name === 'PLAYING') {
+                const position = status.positionMillis;
+                return { name: 'PLAYING', sound, position };
+              }
+              return state;
+            });
+          }
+        },
         false,
       );
       setState({
         name: 'PLAYING',
         sound,
+        position: 0,
       });
     } catch (error) {
       setState({ name: 'ERROR', error });
@@ -91,8 +104,20 @@ export function AudioPlayer(props: { id: string; uri: string }) {
           <Button flex={1} onPress={() => stop()}>
             {t('Stop')}
           </Button>
+          <Text>
+            {state.position} / {duration}
+          </Text>
           <Button flex={1} onPress={() => pause()}>
             {t('Pause')}
+          </Button>
+        </XStack>
+      ) : state.name === 'PAUSED' ? (
+        <XStack gap="$3">
+          <Text flex={1}>
+            {state.position} / {duration}
+          </Text>
+          <Button flex={1} onPress={() => play()}>
+            {t('Play')}
           </Button>
         </XStack>
       ) : (

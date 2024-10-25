@@ -21,6 +21,7 @@
     "@valibot/to-json-schema": "^0.2.1",
     "drizzle-kit": "^0.26.2",
     "drizzle-orm": "^0.35.3",
+    "music-metadata": "^10.5.1",
     "openai": "^4.52.7",
     "rou3": "^0.5.1",
     "tsx": "^4.19.1",

@@ -57,8 +57,8 @@ export async function generateStoryIdeas(_request: Request): Promise<Response> {
       description,
       imagePrompt,
       imageUrl: null,
-      audioUrl: null,
       content: null,
+      audio: null,
     };
     // TODO: Kick off the image/content generation
     await db.insert(storiesTable).values(story);

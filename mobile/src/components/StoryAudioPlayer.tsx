@@ -7,11 +7,15 @@ import type { Story } from '~/types/Story';
 
 import { AudioPlayer } from './AudioPlayer';
 
-async function getStoryAudioStatus(id: string) {
-  const response = await api.get(`/stories/${id}/audio/status`);
+type AudioDetails = {
+  duration: number;
+};
+
+async function getStoryAudioDetails(id: string) {
+  const response = await api.get(`/stories/${id}/audio/details`);
   const data = await response.json();
-  const status = String(Object(data).status);
-  return { status };
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  return data as AudioDetails;
 }
 
 type Props = {
@@ -20,9 +24,9 @@ type Props = {
 
 export function StoryAudioPlayer(props: Props) {
   const { story } = props;
-  const { status, error } = useQuery({
-    queryKey: ['getStoryAudioStatus', story.id],
-    queryFn: () => getStoryAudioStatus(story.id),
+  const { data, status, error } = useQuery({
+    queryKey: ['getStoryAudioDetails', story.id],
+    queryFn: () => getStoryAudioDetails(story.id),
   });
   if (status === 'error') {
     return (
@@ -44,6 +48,7 @@ export function StoryAudioPlayer(props: Props) {
     <AudioPlayer
       id={story.id}
       uri={`${API_BASE_URL}/stories/${story.id}/audio`}
+      duration={data.duration}
     />
   );
 }

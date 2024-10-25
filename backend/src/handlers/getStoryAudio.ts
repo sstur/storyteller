@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { eq } from 'drizzle-orm';
+import { loadMusicMetadata } from 'music-metadata';
 
 import { db } from '~/db/db';
 import type { Story } from '~/db/schema';
@@ -9,6 +10,7 @@ import { HttpError } from '~/support/HttpError';
 import { openai } from '~/support/openai';
 import { saveFile } from '~/support/saveFile';
 import { store } from '~/support/store';
+import type { AudioFile } from '~/types/AudioFile';
 
 const prompt = `
 Read the following kids story in a fun, fast-paced and cheerful way.
@@ -44,21 +46,24 @@ async function generateStoryAudio(story: Story) {
     completion.choices[0]?.message.audio.data,
     'base64',
   );
-
   const filename = `${id}-audio.mp3`;
-  const audioUrl = await saveFile(filename, 'audio/mp3', audioData);
-  await db
-    .update(storiesTable)
-    .set({ audioUrl })
-    .where(eq(storiesTable.id, id));
-  return audioUrl;
+  const mimeType = 'audio/mp3';
+
+  const { parseBuffer } = await loadMusicMetadata();
+  const audioInfo = await parseBuffer(audioData, mimeType, { duration: true });
+  const duration = Math.floor((audioInfo.format.duration ?? 0) * 1000);
+
+  const url = await saveFile(filename, mimeType, audioData);
+  const audio: AudioFile = { url, mimeType, duration };
+  await db.update(storiesTable).set({ audio }).where(eq(storiesTable.id, id));
+  return audio;
 }
 
 export async function getStoryAudio(story: Story) {
-  const { id, audioUrl } = story;
+  const { id, audio } = story;
 
-  if (audioUrl !== null) {
-    return audioUrl;
+  if (audio !== null) {
+    return audio;
   }
 
   const audioPromise =
@@ -68,11 +73,7 @@ export async function getStoryAudio(story: Story) {
   return await audioPromise;
 }
 
-export async function getStoryAudioResponse(
-  _request: Request,
-  params: { id: string },
-): Promise<Response> {
-  const { id } = params;
+async function getStoryAudioById(id: string) {
   const [story] = await db
     .select()
     .from(storiesTable)
@@ -82,9 +83,23 @@ export async function getStoryAudioResponse(
     throw new HttpError(404, 'Not found');
   }
 
-  const audioUrl = await getStoryAudio(story);
+  return await getStoryAudio(story);
+}
 
-  const response = await fetch(audioUrl);
+export async function getStoryAudioDetailsResponse(
+  _request: Request,
+  params: { id: string },
+): Promise<Response> {
+  const { duration } = await getStoryAudioById(params.id);
+  return Response.json({ duration });
+}
+
+export async function getStoryAudioPayloadResponse(
+  _request: Request,
+  params: { id: string },
+): Promise<Response> {
+  const { url } = await getStoryAudioById(params.id);
+  const response = await fetch(url);
 
   return new Response(response.body, {
     headers: response.headers,

@@ -1,7 +1,10 @@
 import { addRoute, createRouter, findRoute } from 'rou3';
 
 import { generateStoryIdeas } from '~/handlers/generateStoryIdeas';
-import { getStoryAudioResponse } from '~/handlers/getStoryAudio';
+import {
+  getStoryAudioDetailsResponse,
+  getStoryAudioPayloadResponse,
+} from '~/handlers/getStoryAudio';
 import { getStoryContentResponse } from '~/handlers/getStoryContent';
 import { getStoryImageResponse } from '~/handlers/getStoryImage';
 
@@ -38,17 +41,16 @@ addRoute(router, 'GET', '/stories/:id/content', async (request, params) => {
 addRoute(
   router,
   'GET',
-  '/stories/:id/audio/status',
+  '/stories/:id/audio/details',
   async (request, params) => {
     const id = params?.id ?? '';
-    await getStoryAudioResponse(request, { id });
-    return Response.json({ status: 'ready' });
+    return await getStoryAudioDetailsResponse(request, { id });
   },
 );
 
 addRoute(router, 'GET', '/stories/:id/audio', async (request, params) => {
   const id = params?.id ?? '';
-  return await getStoryAudioResponse(request, { id });
+  return await getStoryAudioPayloadResponse(request, { id });
 });
 
 export async function handleRequest(
