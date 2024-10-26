@@ -10,12 +10,12 @@ type InitWithBody = Omit<RequestInit, 'method' | 'body'> & {
   body?: unknown;
 };
 
-type Method = 'GET' | 'POST';
+type Method = 'GET' | 'PUT' | 'POST' | 'DELETE';
 
 function createFetch<T extends Method>(method: T) {
   return async (
     path: string,
-    init?: T extends 'POST' ? InitWithBody : Init,
+    init?: T extends 'PUT' | 'POST' ? InitWithBody : Init,
   ) => {
     const url = new URL(path, API_BASE_URL);
 
@@ -51,5 +51,7 @@ function serializeBody(headers: Headers, body: unknown) {
 
 export const api = {
   get: createFetch('GET'),
+  put: createFetch('PUT'),
   post: createFetch('POST'),
+  delete: createFetch('DELETE'),
 };

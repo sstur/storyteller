@@ -1,4 +1,4 @@
-import { desc, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { addRoute, createRouter, findRoute } from 'rou3';
 
 import { generateStories } from '~/handlers/generateStories';
@@ -13,6 +13,7 @@ import { getStoryImageResponse } from '~/handlers/getStoryImage';
 import { db } from './db/db';
 import { storiesTable } from './db/schema';
 import { getSessionId } from './support/getSessionId';
+import { HttpError } from './support/HttpError';
 
 type Handler = (
   request: Request,
@@ -47,6 +48,27 @@ addRoute(router, 'GET', '/stories/suggestions', async (_request) => {
 
 addRoute(router, 'POST', '/stories/generate', async (request) => {
   await generateStories(request);
+  return Response.json({ success: true });
+});
+
+addRoute(router, 'DELETE', '/stories/:id', async (request, params) => {
+  const id = params?.id ?? '';
+  const sessionId = getSessionId(request);
+  const [story] = await db
+    .select()
+    .from(storiesTable)
+    .where(and(eq(storiesTable.createdBy, sessionId), eq(storiesTable.id, id)));
+
+  if (!story) {
+    throw new HttpError(404, 'Not found');
+  }
+
+  // This is sort of a soft-delete, we just dis-associate the story from the user
+  await db
+    .update(storiesTable)
+    .set({ createdBy: null })
+    .where(eq(storiesTable.id, id));
+
   return Response.json({ success: true });
 });
 

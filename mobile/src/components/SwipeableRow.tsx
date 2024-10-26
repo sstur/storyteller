@@ -5,12 +5,13 @@ import type { SharedValue } from 'react-native-reanimated';
 import Reanimated, { useAnimatedStyle } from 'react-native-reanimated';
 
 import type { TextProps, ViewProps } from '~/components/core';
-import { Text, YStack } from '~/components/core';
+import { Spinner, Text, YStack } from '~/components/core';
 
 const BUTTON_WIDTH = 76;
 
 type Action = {
   title: string;
+  isLoading?: boolean;
   onPress: () => void;
   outerViewStyle?: StyleProp<ViewStyle>;
   viewProps?: ViewProps;
@@ -23,7 +24,8 @@ function RightActionsView(props: {
   drag: SharedValue<number>;
 }) {
   const { action, drag } = props;
-  const { title, onPress, outerViewStyle, viewProps, textProps } = action;
+  const { title, isLoading, onPress, outerViewStyle, viewProps, textProps } =
+    action;
   const styleAnimation = useAnimatedStyle(() => {
     return {
       transform: [{ translateX: drag.value + BUTTON_WIDTH }],
@@ -37,20 +39,28 @@ function RightActionsView(props: {
         width={BUTTON_WIDTH}
         jc="center"
         ai="center"
-        onPress={() => onPress()}
+        onPress={() => {
+          if (!isLoading) {
+            onPress();
+          }
+        }}
         {...viewProps}
       >
-        <Text {...textProps}>{title}</Text>
+        {isLoading ? <Spinner /> : <Text {...textProps}>{title}</Text>}
       </YStack>
     </Reanimated.View>
   );
 }
 
 export function SwipeableRow(props: {
+  disabled?: boolean;
   actionRight: Action;
   children: ReactElement;
 }) {
-  const { actionRight, children } = props;
+  const { disabled, actionRight, children } = props;
+  if (disabled) {
+    return <>{children}</>;
+  }
   return (
     <ReanimatedSwipeable
       friction={2}

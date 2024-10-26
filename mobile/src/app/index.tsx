@@ -1,6 +1,7 @@
 import { Fragment, useState } from 'react';
 import { Alert, RefreshControl } from 'react-native';
 import { MoreVertical } from '@tamagui/lucide-icons';
+import { useMutation } from '@tanstack/react-query';
 import { router, Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -19,17 +20,42 @@ import { StoryImage } from '~/components/StoryImage';
 import { SwipeableRow } from '~/components/SwipeableRow';
 import { WelcomeView } from '~/components/WelcomeView';
 import { useStoryContext } from '~/providers/StoryProvider';
+import { api } from '~/support/api';
 import type { Story } from '~/types/Story';
+
+async function deleteStory(id: string) {
+  const response = await api.delete(`/stories/${id}`);
+  const result = Object(await response.json());
+  if (!result.success) {
+    const { error } = result;
+    throw new Error(typeof error === 'string' ? error : t('Unexpected error'));
+  }
+  return { success: true as const };
+}
 
 function StoryCard(props: { story: Story; onStoryPress: () => void }) {
   const { story, onStoryPress } = props;
+  const { refetch } = useStoryContext();
+  const [isDeleted, setIsDeleted] = useState(false);
+
+  const { mutate, isPending: isDeleting } = useMutation({
+    mutationFn: () => deleteStory(story.id),
+    onSuccess: () => {
+      setIsDeleted(true);
+      refetch();
+    },
+    onError: (error) => {
+      Alert.alert(t('Error'), String(error));
+    },
+  });
+
   return (
     <SwipeableRow
+      disabled={isDeleted}
       actionRight={{
         title: t('Delete'),
-        onPress: () => {
-          Alert.alert(t('Delete Story'));
-        },
+        isLoading: isDeleting,
+        onPress: () => mutate(),
         outerViewStyle: {
           backgroundColor: 'white',
         },
@@ -48,7 +74,14 @@ function StoryCard(props: { story: Story; onStoryPress: () => void }) {
         <Text numberOfLines={1} fontWeight="bold" fontSize="$5">
           {story.title}
         </Text>
-        <XStack gap="$3" onPress={() => onStoryPress()}>
+        <XStack
+          gap="$3"
+          onPress={() => {
+            if (!isDeleted) {
+              onStoryPress();
+            }
+          }}
+        >
           <StoryImage
             src={`/stories/${story.id}/images/cover`}
             aspectRatio={1}
