@@ -24,21 +24,42 @@ import type { Story } from '~/types/Story';
 function StoryCard(props: { story: Story; onStoryPress: () => void }) {
   const { story, onStoryPress } = props;
   return (
-    <YStack px="$3" gap="$2">
-      <Text numberOfLines={1} fontWeight="bold" fontSize="$5">
-        {story.title}
-      </Text>
-      <XStack gap="$3" onPress={() => onStoryPress()}>
-        <StoryImage
-          src={`/stories/${story.id}/images/cover`}
-          aspectRatio={1}
-          width={100}
-        />
-        <YStack flex={1}>
-          <Text numberOfLines={4}>{story.description}</Text>
-        </YStack>
-      </XStack>
-    </YStack>
+    <SwipeableRow
+      actionRight={{
+        title: t('Delete'),
+        onPress: () => {
+          Alert.alert(t('Delete Story'));
+        },
+        outerViewStyle: {
+          backgroundColor: 'white',
+        },
+        viewProps: {
+          bg: 'red',
+          pressStyle: {
+            opacity: 0.6,
+          },
+        },
+        textProps: {
+          color: 'white',
+        },
+      }}
+    >
+      <YStack px="$3" gap="$2">
+        <Text numberOfLines={1} fontWeight="bold" fontSize="$5">
+          {story.title}
+        </Text>
+        <XStack gap="$3" onPress={() => onStoryPress()}>
+          <StoryImage
+            src={`/stories/${story.id}/images/cover`}
+            aspectRatio={1}
+            width={100}
+          />
+          <YStack flex={1}>
+            <Text numberOfLines={4}>{story.description}</Text>
+          </YStack>
+        </XStack>
+      </YStack>
+    </SwipeableRow>
   );
 }
 
@@ -63,28 +84,7 @@ function StoryListContent(props: { onStoryPress: (story: Story) => void }) {
       {state.stories.map((story, i) => (
         <Fragment key={story.id}>
           {i !== 0 ? <Separator mx="$3" /> : null}
-          <SwipeableRow
-            actionRight={{
-              title: t('Delete'),
-              onPress: () => {
-                Alert.alert(t('Delete Story'));
-              },
-              outerViewStyle: {
-                backgroundColor: 'white',
-              },
-              viewProps: {
-                bg: 'red',
-                pressStyle: {
-                  opacity: 0.6,
-                },
-              },
-              textProps: {
-                color: 'white',
-              },
-            }}
-          >
-            <StoryCard story={story} onStoryPress={() => onStoryPress(story)} />
-          </SwipeableRow>
+          <StoryCard story={story} onStoryPress={() => onStoryPress(story)} />
         </Fragment>
       ))}
     </YStack>
