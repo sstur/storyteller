@@ -1,8 +1,10 @@
 import type { ReactElement } from 'react';
+import type { StyleProp, ViewStyle } from 'react-native';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import type { SharedValue } from 'react-native-reanimated';
 import Reanimated, { useAnimatedStyle } from 'react-native-reanimated';
 
+import type { TextProps, ViewProps } from '~/components/core';
 import { Text, YStack } from '~/components/core';
 
 const BUTTON_WIDTH = 76;
@@ -10,8 +12,9 @@ const BUTTON_WIDTH = 76;
 type Action = {
   title: string;
   onPress: () => void;
-  color?: string;
-  backgroundColor?: string;
+  outerViewStyle?: StyleProp<ViewStyle>;
+  viewProps?: ViewProps;
+  textProps?: TextProps;
 };
 
 function RightActionsView(props: {
@@ -20,6 +23,7 @@ function RightActionsView(props: {
   drag: SharedValue<number>;
 }) {
   const { action, drag } = props;
+  const { title, onPress, outerViewStyle, viewProps, textProps } = action;
   const styleAnimation = useAnimatedStyle(() => {
     return {
       transform: [{ translateX: drag.value + BUTTON_WIDTH }],
@@ -27,16 +31,16 @@ function RightActionsView(props: {
   });
 
   return (
-    <Reanimated.View style={styleAnimation}>
-      {/* TODO: Make this pressable */}
+    <Reanimated.View style={[outerViewStyle, styleAnimation]}>
       <YStack
         flex={1}
-        backgroundColor={action.backgroundColor}
         width={BUTTON_WIDTH}
         jc="center"
         ai="center"
+        onPress={() => onPress()}
+        {...viewProps}
       >
-        <Text color={action.color}>{action.title}</Text>
+        <Text {...textProps}>{title}</Text>
       </YStack>
     </Reanimated.View>
   );

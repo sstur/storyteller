@@ -1,5 +1,5 @@
 import { Fragment, useState } from 'react';
-import { RefreshControl } from 'react-native';
+import { Alert, RefreshControl } from 'react-native';
 import { MoreVertical } from '@tamagui/lucide-icons';
 import { router, Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -66,9 +66,21 @@ function StoryListContent(props: { onStoryPress: (story: Story) => void }) {
           <SwipeableRow
             actionRight={{
               title: t('Delete'),
-              color: 'white',
-              backgroundColor: 'red',
-              onPress: () => {},
+              onPress: () => {
+                Alert.alert(t('Delete Story'));
+              },
+              outerViewStyle: {
+                backgroundColor: 'white',
+              },
+              viewProps: {
+                bg: 'red',
+                pressStyle: {
+                  opacity: 0.6,
+                },
+              },
+              textProps: {
+                color: 'white',
+              },
             }}
           >
             <StoryCard story={story} onStoryPress={() => onStoryPress(story)} />
