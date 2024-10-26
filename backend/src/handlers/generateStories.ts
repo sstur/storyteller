@@ -51,7 +51,7 @@ type Result = v.InferOutput<typeof resultSchema>;
 
 const resultJsonSchema = toJsonSchema(resultSchema);
 
-export async function generateStoryIdeas(request: Request): Promise<Response> {
+export async function generateStories(request: Request) {
   const input = parseBody(await request.json());
   const count = input.type === 'AI' ? input.count ?? defaultCount : 1;
   let prompt = basePrompt.replace('{count}', String(count));
@@ -96,10 +96,4 @@ export async function generateStoryIdeas(request: Request): Promise<Response> {
     await db.insert(storiesTable).values(story);
     // stories.push(story);
   }
-  return Response.json({
-    success: true,
-    // stories: stories.map(({ id, title, description }) => {
-    //   return { id, title, description };
-    // }),
-  });
 }

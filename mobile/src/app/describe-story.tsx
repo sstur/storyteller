@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { TextInput } from 'react-native';
 import { Alert } from 'react-native';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { router, Stack } from 'expo-router';
 import Animated, { useAnimatedKeyboard } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,7 +18,13 @@ import {
 import { useStoryContext } from '~/providers/StoryProvider';
 import { api } from '~/support/api';
 
-const exampleStoryIdea = 'A story about a dinosaur in an enchanted forest';
+async function getSuggestedDescriptions() {
+  const response = await api.get('/stories/suggestions');
+  const data = await response.json();
+  return Array.isArray(data)
+    ? data.filter((item): item is string => typeof item === 'string')
+    : [];
+}
 
 async function generateStory(description: string) {
   const response = await api.post('/stories/generate', {
@@ -32,12 +38,16 @@ async function generateStory(description: string) {
   return { success: true as const };
 }
 
-export default function DescribeStory() {
+function DescribeStoryForm(props: { suggestions: Array<string> }) {
+  const { suggestions } = props;
   const { refetch } = useStoryContext();
   const safeAreaInsets = useSafeAreaInsets();
   const keyboard = useAnimatedKeyboard();
   const inputRef = useRef<TextInput | null>(null);
-  const [description, setDescription] = useState(exampleStoryIdea);
+  const [description, setDescription] = useState(() => {
+    const i = Math.floor(Math.random() * suggestions.length);
+    return suggestions[i] ?? '';
+  });
   const { mutate: send, isPending: isSubmitting } = useMutation({
     mutationFn: () => generateStory(description),
     onSuccess: () => {
@@ -102,4 +112,20 @@ export default function DescribeStory() {
       </ScrollView>
     </>
   );
+}
+
+export default function DescribeStory() {
+  const { data, isFetching } = useQuery({
+    queryKey: ['getSuggestedDescriptions'],
+    queryFn: getSuggestedDescriptions,
+    refetchOnWindowFocus: false,
+  });
+  if (isFetching && !data) {
+    return (
+      <YStack flex={1} ai="center" jc="center">
+        <Spinner />
+      </YStack>
+    );
+  }
+  return <DescribeStoryForm suggestions={data ?? []} />;
 }

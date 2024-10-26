@@ -1,7 +1,8 @@
 import { desc, eq } from 'drizzle-orm';
 import { addRoute, createRouter, findRoute } from 'rou3';
 
-import { generateStoryIdeas } from '~/handlers/generateStoryIdeas';
+import { generateStories } from '~/handlers/generateStories';
+import { generateStorySuggestions } from '~/handlers/generateStorySuggestions';
 import {
   getStoryAudioDetailsResponse,
   getStoryAudioPayloadResponse,
@@ -39,8 +40,14 @@ addRoute(router, 'GET', '/stories', async (request) => {
   });
 });
 
+addRoute(router, 'GET', '/stories/suggestions', async (_request) => {
+  const suggestions = await generateStorySuggestions();
+  return Response.json(suggestions);
+});
+
 addRoute(router, 'POST', '/stories/generate', async (request) => {
-  return await generateStoryIdeas(request);
+  await generateStories(request);
+  return Response.json({ success: true });
 });
 
 addRoute(
