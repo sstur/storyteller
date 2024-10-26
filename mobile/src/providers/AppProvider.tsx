@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { FontProvider } from './FontProvider';
 import { ReactQueryProvider } from './ReactQueryProvider';
@@ -14,11 +15,13 @@ export function AppProvider(props: Props) {
   const { onInitialized, children } = props;
   return (
     <FontProvider onInitialized={onInitialized}>
-      <ThemeProvider>
-        <ReactQueryProvider>
-          <StoryProvider>{children}</StoryProvider>
-        </ReactQueryProvider>
-      </ThemeProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <ThemeProvider>
+          <ReactQueryProvider>
+            <StoryProvider>{children}</StoryProvider>
+          </ReactQueryProvider>
+        </ThemeProvider>
+      </GestureHandlerRootView>
     </FontProvider>
   );
 }

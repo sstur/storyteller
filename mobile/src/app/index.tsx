@@ -16,6 +16,7 @@ import {
 import { DropdownMenu } from '~/components/DropdownMenu';
 import { HeaderButton, PageHeader } from '~/components/PageHeader';
 import { StoryImage } from '~/components/StoryImage';
+import { SwipeableRow } from '~/components/SwipeableRow';
 import { WelcomeView } from '~/components/WelcomeView';
 import { useStoryContext } from '~/providers/StoryProvider';
 import type { Story } from '~/types/Story';
@@ -23,7 +24,7 @@ import type { Story } from '~/types/Story';
 function StoryCard(props: { story: Story; onStoryPress: () => void }) {
   const { story, onStoryPress } = props;
   return (
-    <YStack gap="$2">
+    <YStack px="$3" gap="$2">
       <Text numberOfLines={1} fontWeight="bold" fontSize="$5">
         {story.title}
       </Text>
@@ -47,7 +48,7 @@ function StoryListContent(props: { onStoryPress: (story: Story) => void }) {
 
   if (state.name === 'ERROR') {
     return (
-      <YStack gap="$3">
+      <YStack px="$3" gap="$3">
         <Text>{String(state.error)}</Text>
         <Button onPress={() => refetch()}>{t('Refresh')}</Button>
       </YStack>
@@ -61,8 +62,17 @@ function StoryListContent(props: { onStoryPress: (story: Story) => void }) {
     <YStack gap="$3">
       {state.stories.map((story, i) => (
         <Fragment key={story.id}>
-          {i !== 0 ? <Separator /> : null}
-          <StoryCard story={story} onStoryPress={() => onStoryPress(story)} />
+          {i !== 0 ? <Separator mx="$3" /> : null}
+          <SwipeableRow
+            actionRight={{
+              title: t('Delete'),
+              color: 'white',
+              backgroundColor: 'red',
+              onPress: () => {},
+            }}
+          >
+            <StoryCard story={story} onStoryPress={() => onStoryPress(story)} />
+          </SwipeableRow>
         </Fragment>
       ))}
     </YStack>
@@ -116,7 +126,6 @@ export default function StoryList() {
           flexGrow: 1,
           paddingTop: headerHeight,
           paddingBottom: safeAreaInsets.bottom,
-          paddingHorizontal: '$3',
         }}
         refreshControl={
           <RefreshControl
