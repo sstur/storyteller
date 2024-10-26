@@ -37,7 +37,7 @@ export function PageHeader(props: Props) {
         <YStack paddingTop={safeAreaInsets.top} {...otherProps}>
           {hidden ? null : (
             <XStack ai="stretch">
-              <YStack flex={1}>
+              <YStack flex={1} pl="$3">
                 <H1 fontSize="$9">{title}</H1>
               </YStack>
               <View width={ACCESSORY_WIDTH} jc="center" ai="center">
