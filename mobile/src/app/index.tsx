@@ -97,7 +97,9 @@ export default function StoryList() {
             items={[
               {
                 label: t('Create Story'),
-                onClick: () => {},
+                onClick: () => {
+                  router.push({ pathname: '/create-story' });
+                },
               },
             ]}
           />

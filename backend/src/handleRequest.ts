@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { addRoute, createRouter, findRoute } from 'rou3';
 
 import { generateStoryIdeas } from '~/handlers/generateStoryIdeas';
@@ -29,7 +29,8 @@ addRoute(router, 'GET', '/stories', async (request) => {
   const stories = await db
     .select()
     .from(storiesTable)
-    .where(eq(storiesTable.createdBy, sessionId));
+    .where(eq(storiesTable.createdBy, sessionId))
+    .orderBy(desc(storiesTable.id));
   return Response.json({
     success: true,
     stories: stories.map(({ id, title, description }) => {
