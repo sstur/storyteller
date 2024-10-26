@@ -1,5 +1,6 @@
 import { Fragment, useState } from 'react';
 import { RefreshControl } from 'react-native';
+import { MoreVertical } from '@tamagui/lucide-icons';
 import { router, Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -12,7 +13,8 @@ import {
   XStack,
   YStack,
 } from '~/components/core';
-import { PageHeader } from '~/components/PageHeader';
+import { DropdownMenu } from '~/components/DropdownMenu';
+import { HeaderButton, PageHeader } from '~/components/PageHeader';
 import { StoryImage } from '~/components/StoryImage';
 import { WelcomeView } from '~/components/WelcomeView';
 import { useStoryContext } from '~/providers/StoryProvider';
@@ -73,6 +75,7 @@ export default function StoryList() {
   const [headerHeight, setHeaderHeight] = useState(0);
 
   const isEmpty = state.name === 'LOADED' && state.stories.length === 0;
+  const showHeader = state.name === 'LOADED' && state.stories.length > 0;
 
   return (
     <>
@@ -84,10 +87,21 @@ export default function StoryList() {
       />
       <PageHeader
         title={t('Stories')}
-        opacity={state.name === 'LOADED' && state.stories.length > 0 ? 1 : 0}
+        hidden={!showHeader}
         onLayout={(event) => {
           setHeaderHeight(event.nativeEvent.layout.height);
         }}
+        itemRight={
+          <DropdownMenu
+            trigger={<HeaderButton icon={MoreVertical} />}
+            items={[
+              {
+                label: t('Create Story'),
+                onClick: () => {},
+              },
+            ]}
+          />
+        }
       />
       <ScrollView
         flex={1}
