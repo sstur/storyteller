@@ -53,14 +53,10 @@ function RightActionsView(props: {
 }
 
 export function SwipeableRow(props: {
-  disabled?: boolean;
   actionRight: Action;
   children: ReactElement;
 }) {
-  const { disabled, actionRight, children } = props;
-  if (disabled) {
-    return <>{children}</>;
-  }
+  const { actionRight, children } = props;
   return (
     <ReanimatedSwipeable
       friction={2}

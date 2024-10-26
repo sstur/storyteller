@@ -35,14 +35,12 @@ async function deleteStory(id: string) {
 
 function StoryCard(props: { story: Story; onStoryPress: () => void }) {
   const { story, onStoryPress } = props;
-  const { refetch } = useStoryContext();
-  const [isDeleted, setIsDeleted] = useState(false);
+  const { setStories } = useStoryContext();
 
   const { mutate, isPending: isDeleting } = useMutation({
     mutationFn: () => deleteStory(story.id),
     onSuccess: () => {
-      setIsDeleted(true);
-      refetch();
+      setStories((stories) => stories.filter(({ id }) => id !== story.id));
     },
     onError: (error) => {
       Alert.alert(t('Error'), String(error));
@@ -51,7 +49,6 @@ function StoryCard(props: { story: Story; onStoryPress: () => void }) {
 
   return (
     <SwipeableRow
-      disabled={isDeleted}
       actionRight={{
         title: t('Delete'),
         isLoading: isDeleting,
@@ -74,14 +71,7 @@ function StoryCard(props: { story: Story; onStoryPress: () => void }) {
         <Text numberOfLines={1} fontWeight="bold" fontSize="$5">
           {story.title}
         </Text>
-        <XStack
-          gap="$3"
-          onPress={() => {
-            if (!isDeleted) {
-              onStoryPress();
-            }
-          }}
-        >
+        <XStack gap="$3" onPress={() => onStoryPress()}>
           <StoryImage
             src={`/stories/${story.id}/images/cover`}
             aspectRatio={1}
