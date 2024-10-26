@@ -1,16 +1,26 @@
-import { createContext, useContext, type ReactNode } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 
 import { api } from '~/support/api';
 import type { Story } from '~/types/Story';
 
+type StoryContextState =
+  | { name: 'LOADING'; isRefetch: boolean }
+  | { name: 'ERROR'; error: Error }
+  | { name: 'LOADED'; stories: Array<Story> };
+
 type StoryContext = {
-  state:
-    | { name: 'LOADING' }
-    | { name: 'ERROR'; error: Error }
-    | { name: 'LOADED'; stories: Array<Story> };
+  state: StoryContextState;
   isRefetching: boolean;
   refetch: () => void;
+  setStories: (updater: (stories: Array<Story>) => Array<Story>) => void;
 };
 
 const Context = createContext<StoryContext | null>(null);
@@ -30,19 +40,63 @@ async function getStories() {
 }
 
 export function StoryProvider(props: { children: ReactNode }) {
-  const { data, status, error, refetch, isRefetching } = useQuery({
-    queryKey: ['getStories'],
-    queryFn: getStories,
+  const isMountedRef = useRef(true);
+
+  const [state, setState] = useState<StoryContextState>({
+    name: 'LOADING',
+    isRefetch: false,
   });
+
+  const fetchStories = useCallback((opts: { isRefetch: boolean }) => {
+    const { isRefetch } = opts;
+    setState({ name: 'LOADING', isRefetch });
+    return getStories()
+      .then((stories) => {
+        if (isMountedRef.current) {
+          setState({ name: 'LOADED', stories });
+        }
+      })
+      .catch((e) => {
+        if (isMountedRef.current) {
+          const error = e instanceof Error ? e : new Error(String(e));
+          setState({ name: 'ERROR', error });
+        }
+      });
+  }, []);
+
+  useEffect(() => {
+    void fetchStories({ isRefetch: false });
+    return () => {
+      isMountedRef.current = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const refetch = useCallback(
+    () => fetchStories({ isRefetch: true }),
+    [fetchStories],
+  );
+
+  const setStories = useCallback(
+    (updater: (stories: Array<Story>) => Array<Story>) => {
+      setState((state) => {
+        if (state.name === 'LOADED') {
+          const newStories = updater(state.stories);
+          return { name: 'LOADED', stories: newStories };
+        }
+        return state;
+      });
+    },
+    [],
+  );
+
+  const isRefetching = state.name === 'LOADING' && state.isRefetch;
+
   const contextValue: StoryContext = {
-    state:
-      status === 'error'
-        ? { name: 'ERROR', error }
-        : status === 'pending' || isRefetching
-          ? { name: 'LOADING' }
-          : { name: 'LOADED', stories: data },
+    state,
     isRefetching,
     refetch,
+    setStories,
   };
   return (
     <Context.Provider value={contextValue}>{props.children}</Context.Provider>
