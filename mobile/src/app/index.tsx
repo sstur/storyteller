@@ -88,7 +88,7 @@ function StoryCard(props: { story: Story; onStoryPress: () => void }) {
 
 function StoryListContent(props: { onStoryPress: (story: Story) => void }) {
   const { onStoryPress } = props;
-  const { state, refetch, isRefetching } = useStoryContext();
+  const { state, refetch } = useStoryContext();
 
   if (state.name === 'ERROR') {
     return (
@@ -99,8 +99,11 @@ function StoryListContent(props: { onStoryPress: (story: Story) => void }) {
     );
   }
   if (state.name === 'LOADING') {
-    // Don't show double spinner when pull to refresh
-    return isRefetching ? null : <Spinner />;
+    return (
+      <YStack flex={1} jc="center" ai="center">
+        <Spinner size="large" />
+      </YStack>
+    );
   }
   return (
     <YStack gap="$3">
@@ -116,12 +119,12 @@ function StoryListContent(props: { onStoryPress: (story: Story) => void }) {
 
 export default function StoryList() {
   const safeAreaInsets = useSafeAreaInsets();
-  const { state, refetch, isRefetching, generateMoreStories } =
-    useStoryContext();
+  const { state, refetch, generateMoreStories } = useStoryContext();
   const [headerHeight, setHeaderHeight] = useState(0);
 
   const isEmpty = state.name === 'LOADED' && state.stories.length === 0;
   const showHeader = state.name === 'LOADED' && state.stories.length > 0;
+  const isRefetching = state.name === 'LOADED' && state.isRefetching;
 
   return (
     <>

@@ -14,13 +14,12 @@ import { api } from '~/support/api';
 import type { Story } from '~/types/Story';
 
 type StoryContextState =
-  | { name: 'LOADING'; isRefetch: boolean }
+  | { name: 'LOADING'; fetchStarted: boolean }
   | { name: 'ERROR'; error: Error }
-  | { name: 'LOADED'; stories: Array<Story> };
+  | { name: 'LOADED'; stories: Array<Story>; isRefetching: boolean };
 
 type StoryContext = {
   state: StoryContextState;
-  isRefetching: boolean;
   refetch: () => void;
   setStories: (updater: (stories: Array<Story>) => Array<Story>) => void;
   generateMoreStories: () => void;
@@ -47,16 +46,32 @@ export function StoryProvider(props: { children: ReactNode }) {
 
   const [state, setState] = useState<StoryContextState>({
     name: 'LOADING',
-    isRefetch: false,
+    fetchStarted: false,
   });
+  const stateRef = useRef(state);
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
-  const fetchStories = useCallback((opts: { isRefetch: boolean }) => {
-    const { isRefetch } = opts;
-    setState({ name: 'LOADING', isRefetch });
-    return getStories()
+  const fetchStories = useCallback(() => {
+    const state = stateRef.current;
+    // Don't start a new fetch if one is in progress
+    if (
+      (state.name === 'LOADING' && state.fetchStarted) ||
+      (state.name === 'LOADED' && state.isRefetching)
+    ) {
+      return;
+    }
+    if (state.name === 'LOADED') {
+      const { stories } = state;
+      setState({ name: 'LOADED', stories, isRefetching: true });
+    } else {
+      setState({ name: 'LOADING', fetchStarted: true });
+    }
+    getStories()
       .then((stories) => {
         if (isMountedRef.current) {
-          setState({ name: 'LOADED', stories });
+          setState({ name: 'LOADED', stories, isRefetching: false });
         }
       })
       .catch((e) => {
@@ -68,21 +83,16 @@ export function StoryProvider(props: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    void fetchStories({ isRefetch: false });
+    fetchStories();
     return () => {
       isMountedRef.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const refetch = useCallback(() => {
-    void fetchStories({ isRefetch: true });
-  }, [fetchStories]);
-
   const [generateMoreStories, { isGenerating }] = useGenerateStories({
     onSuccess: () => {
-      // TODO: Refresh gracefully, with some indicator but not unmounting the list.
-      refetch();
+      fetchStories();
     },
   });
 
@@ -90,8 +100,9 @@ export function StoryProvider(props: { children: ReactNode }) {
     (updater: (stories: Array<Story>) => Array<Story>) => {
       setState((state) => {
         if (state.name === 'LOADED') {
-          const newStories = updater(state.stories);
-          return { name: 'LOADED', stories: newStories };
+          const { stories, isRefetching } = state;
+          const newStories = updater(stories);
+          return { name: 'LOADED', stories: newStories, isRefetching };
         }
         return state;
       });
@@ -99,12 +110,9 @@ export function StoryProvider(props: { children: ReactNode }) {
     [],
   );
 
-  const isRefetching = state.name === 'LOADING' && state.isRefetch;
-
   const contextValue: StoryContext = {
     state,
-    isRefetching,
-    refetch,
+    refetch: fetchStories,
     setStories,
     generateMoreStories,
   };

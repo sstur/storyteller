@@ -27,7 +27,7 @@ async function getStory(id: string) {
 function StoryContent(props: { story: Story }) {
   const { story } = props;
 
-  const { data, status, error, refetch, isRefetching } = useQuery({
+  const { data, status, error, refetch } = useQuery({
     queryKey: ['getStory', story.id],
     queryFn: () => getStory(story.id),
   });
@@ -40,7 +40,7 @@ function StoryContent(props: { story: Story }) {
       </YStack>
     );
   }
-  if (status === 'pending' || isRefetching) {
+  if (status === 'pending') {
     return <Spinner />;
   }
 
