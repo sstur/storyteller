@@ -63,7 +63,7 @@ function StoryCard(props: { story: Story; onStoryPress: () => void }) {
           backgroundColor: 'white',
         },
         viewProps: {
-          bg: 'red',
+          bg: '$red10',
           pressStyle: {
             opacity: 0.6,
           },
