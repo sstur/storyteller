@@ -8,6 +8,8 @@ import {
   type ReactNode,
 } from 'react';
 
+import { FullScreenLoadingModal } from '~/components/FullScreenLoadingModal';
+import { useGenerateStories } from '~/hooks/useGenerateStories';
 import { api } from '~/support/api';
 import type { Story } from '~/types/Story';
 
@@ -21,6 +23,7 @@ type StoryContext = {
   isRefetching: boolean;
   refetch: () => void;
   setStories: (updater: (stories: Array<Story>) => Array<Story>) => void;
+  generateMoreStories: () => void;
 };
 
 const Context = createContext<StoryContext | null>(null);
@@ -77,6 +80,13 @@ export function StoryProvider(props: { children: ReactNode }) {
     [fetchStories],
   );
 
+  const [generateMoreStories, { isGenerating }] = useGenerateStories({
+    onSuccess: () => {
+      // TODO: Refresh gracefully, with some indicator but not unmounting the list.
+      refetch();
+    },
+  });
+
   const setStories = useCallback(
     (updater: (stories: Array<Story>) => Array<Story>) => {
       setState((state) => {
@@ -97,9 +107,13 @@ export function StoryProvider(props: { children: ReactNode }) {
     isRefetching,
     refetch,
     setStories,
+    generateMoreStories,
   };
   return (
-    <Context.Provider value={contextValue}>{props.children}</Context.Provider>
+    <Context.Provider value={contextValue}>
+      <FullScreenLoadingModal visible={isGenerating} />
+      {props.children}
+    </Context.Provider>
   );
 }
 

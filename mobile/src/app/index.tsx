@@ -116,7 +116,8 @@ function StoryListContent(props: { onStoryPress: (story: Story) => void }) {
 
 export default function StoryList() {
   const safeAreaInsets = useSafeAreaInsets();
-  const { state, refetch, isRefetching } = useStoryContext();
+  const { state, refetch, isRefetching, generateMoreStories } =
+    useStoryContext();
   const [headerHeight, setHeaderHeight] = useState(0);
 
   const isEmpty = state.name === 'LOADED' && state.stories.length === 0;
@@ -141,9 +142,15 @@ export default function StoryList() {
             trigger={<HeaderButton icon={MoreVertical} />}
             items={[
               {
-                label: t('Create Story'),
+                label: t('Generate More Stories'),
                 onClick: () => {
-                  router.push({ pathname: '/create-story' });
+                  generateMoreStories();
+                },
+              },
+              {
+                label: t('Create My Own Story'),
+                onClick: () => {
+                  router.push({ pathname: '/describe-story' });
                 },
               },
             ]}
