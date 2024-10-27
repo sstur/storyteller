@@ -97,8 +97,6 @@ export async function handleRequest(
   request: Request,
 ): Promise<Response> {
   const result = findRoute(router, request.method, pathname);
-  // TODO: Remove this
-  await new Promise((resolve) => setTimeout(resolve, 3000));
   if (result) {
     const { data: handler, params } = result;
     return await handler(request, params);
