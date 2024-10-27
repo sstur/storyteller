@@ -68,46 +68,43 @@ function DescribeStoryForm(props: { suggestions: Array<string> }) {
   }, []);
 
   return (
-    <>
-      <Stack.Screen options={{ title: t('My Story') }} />
-      <ScrollView
-        flex={1}
-        keyboardDismissMode="interactive"
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{
-          flexGrow: 1,
-          paddingHorizontal: '$3',
-          gap: '$3',
+    <ScrollView
+      flex={1}
+      keyboardDismissMode="interactive"
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={{
+        flexGrow: 1,
+        paddingHorizontal: '$3',
+        gap: '$3',
+      }}
+    >
+      <YStack py="$3" gap="$3">
+        <H2 fontSize="$8">{t('Description')}</H2>
+        <Text>
+          {t(
+            `Write a one or two sentence description of the story you'd like to see and we'll make it come to life.`,
+          )}
+        </Text>
+      </YStack>
+      <TextArea
+        ref={inputRef}
+        placeholder={t('Describe your story')}
+        minHeight={180}
+        autoFocus={true}
+        disabled={isSubmitting}
+        defaultValue={description}
+        onChangeText={(text) => {
+          setDescription(text);
         }}
-      >
-        <YStack py="$3" gap="$3">
-          <H2 fontSize="$8">{t('Description')}</H2>
-          <Text>
-            {t(
-              `Write a one or two sentence description of the story you'd like to see and we'll make it come to life.`,
-            )}
-          </Text>
-        </YStack>
-        <TextArea
-          ref={inputRef}
-          placeholder={t('Describe your story')}
-          minHeight={180}
-          autoFocus={true}
-          disabled={isSubmitting}
-          defaultValue={description}
-          onChangeText={(text) => {
-            setDescription(text);
-          }}
-        />
-        <YStack flex={1} />
-        <Button theme="blue" disabled={isSubmitting} onPress={() => submit()}>
-          {isSubmitting ? <Spinner /> : t('Create Story')}
-        </Button>
-        <YStack minHeight={safeAreaInsets.bottom}>
-          <Animated.View style={{ height: keyboard.height }} />
-        </YStack>
-      </ScrollView>
-    </>
+      />
+      <YStack flex={1} />
+      <Button theme="blue" disabled={isSubmitting} onPress={() => submit()}>
+        {isSubmitting ? <Spinner /> : t('Create Story')}
+      </Button>
+      <YStack minHeight={safeAreaInsets.bottom}>
+        <Animated.View style={{ height: keyboard.height }} />
+      </YStack>
+    </ScrollView>
   );
 }
 
@@ -117,12 +114,16 @@ export default function DescribeStory() {
     queryFn: getSuggestedDescriptions,
     refetchOnWindowFocus: false,
   });
-  if (isFetching && !data) {
-    return (
-      <YStack flex={1} ai="center" jc="center">
-        <Spinner />
-      </YStack>
-    );
-  }
-  return <DescribeStoryForm suggestions={data ?? []} />;
+  return (
+    <>
+      <Stack.Screen options={{ title: t('My Story') }} />
+      {isFetching && !data ? (
+        <YStack flex={1} ai="center" jc="center">
+          <Spinner />
+        </YStack>
+      ) : (
+        <DescribeStoryForm suggestions={data ?? []} />
+      )}
+    </>
+  );
 }
