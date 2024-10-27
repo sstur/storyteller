@@ -94,7 +94,7 @@ function StoryListContent(props: { onStoryPress: (story: Story) => void }) {
     return (
       <YStack px="$3" gap="$3">
         <Text>{String(state.error)}</Text>
-        <Button onPress={() => refetch()}>{t('Refresh')}</Button>
+        <Button onPress={() => refetch()}>{t('Retry')}</Button>
       </YStack>
     );
   }

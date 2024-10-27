@@ -75,10 +75,9 @@ export function StoryProvider(props: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const refetch = useCallback(
-    () => fetchStories({ isRefetch: true }),
-    [fetchStories],
-  );
+  const refetch = useCallback(() => {
+    void fetchStories({ isRefetch: true });
+  }, [fetchStories]);
 
   const [generateMoreStories, { isGenerating }] = useGenerateStories({
     onSuccess: () => {
