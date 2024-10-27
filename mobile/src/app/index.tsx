@@ -180,7 +180,7 @@ export default function StoryList() {
               {
                 label: t('Create My Own Story'),
                 onClick: () => {
-                  router.push({ pathname: '/describe-story' });
+                  router.push({ pathname: '/create-story' });
                 },
               },
               {

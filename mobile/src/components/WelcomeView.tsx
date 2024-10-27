@@ -22,7 +22,7 @@ export function WelcomeView() {
         theme="blue"
         alignSelf="stretch"
         onPress={() => {
-          router.push({ pathname: '/describe-story' });
+          router.push({ pathname: '/create-story' });
         }}
       >
         {t('Create My Own Story')}
