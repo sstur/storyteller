@@ -15,7 +15,6 @@ import {
   TextArea,
   YStack,
 } from '~/components/core';
-import { useStoryContext } from '~/providers/StoryProvider';
 import { api } from '~/support/api';
 
 async function getSuggestedDescriptions() {
@@ -40,7 +39,6 @@ async function generateStory(description: string) {
 
 function DescribeStoryForm(props: { suggestions: Array<string> }) {
   const { suggestions } = props;
-  const { refetch } = useStoryContext();
   const safeAreaInsets = useSafeAreaInsets();
   const keyboard = useAnimatedKeyboard();
   const inputRef = useRef<TextInput | null>(null);
@@ -51,8 +49,7 @@ function DescribeStoryForm(props: { suggestions: Array<string> }) {
   const { mutate: send, isPending: isSubmitting } = useMutation({
     mutationFn: () => generateStory(description),
     onSuccess: () => {
-      refetch();
-      router.back();
+      router.navigate({ pathname: '/', params: { refresh: 'true' } });
     },
     onError: (error) => {
       Alert.alert(t('Error'), String(error));

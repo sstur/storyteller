@@ -1,8 +1,14 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, RefreshControl } from 'react-native';
 import { MoreVertical } from '@tamagui/lucide-icons';
 import { useMutation } from '@tanstack/react-query';
-import { router, Stack } from 'expo-router';
+import {
+  router,
+  Stack,
+  useFocusEffect,
+  useLocalSearchParams,
+  useNavigation,
+} from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
@@ -89,6 +95,27 @@ function StoryCard(props: { story: Story; onStoryPress: () => void }) {
 function StoryListContent(props: { onStoryPress: (story: Story) => void }) {
   const { onStoryPress } = props;
   const { state, refetch } = useStoryContext();
+  const navigation = useNavigation();
+  const params = useLocalSearchParams();
+  const paramsRef = useRef(params);
+  useEffect(() => {
+    paramsRef.current = params;
+  }, [params]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const params = paramsRef.current;
+      if (params.refresh === 'true') {
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        navigation.setParams({ refresh: 'false' } as never);
+        // Adding a delay here otherwise the RefreshControl doesn't seem to render right
+        setTimeout(() => {
+          refetch();
+        }, 500);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
+  );
 
   if (state.name === 'ERROR') {
     return (
@@ -154,6 +181,12 @@ export default function StoryList() {
                 label: t('Create My Own Story'),
                 onClick: () => {
                   router.push({ pathname: '/describe-story' });
+                },
+              },
+              {
+                label: t('Refresh'),
+                onClick: () => {
+                  refetch();
                 },
               },
             ]}
