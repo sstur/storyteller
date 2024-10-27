@@ -156,12 +156,6 @@ export default function StoryList() {
                   router.push({ pathname: '/create-story' });
                 },
               },
-              {
-                label: t('Refresh'),
-                onClick: () => {
-                  refetch();
-                },
-              },
             ]}
           />
         }
