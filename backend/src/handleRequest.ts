@@ -1,4 +1,4 @@
-import { and, desc, eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { addRoute, createRouter, findRoute } from 'rou3';
 
 import { generateStories } from '~/handlers/generateStories';
@@ -12,6 +12,7 @@ import { getStoryImageResponse } from '~/handlers/getStoryImage';
 
 import { db } from './db/db';
 import { storiesTable } from './db/schema';
+import { getStoriesResponse } from './handlers/getStories';
 import { getSessionId } from './support/getSessionId';
 import { HttpError } from './support/HttpError';
 
@@ -27,18 +28,7 @@ addRoute(router, 'GET', '/', () => {
 });
 
 addRoute(router, 'GET', '/stories', async (request) => {
-  const sessionId = getSessionId(request);
-  const stories = await db
-    .select()
-    .from(storiesTable)
-    .where(eq(storiesTable.createdBy, sessionId))
-    .orderBy(desc(storiesTable.id));
-  return Response.json({
-    success: true,
-    stories: stories.map(({ id, title, description }) => {
-      return { id, title, description };
-    }),
-  });
+  return await getStoriesResponse(request);
 });
 
 addRoute(router, 'GET', '/stories/suggestions', async (_request) => {
@@ -48,7 +38,7 @@ addRoute(router, 'GET', '/stories/suggestions', async (_request) => {
 
 addRoute(router, 'POST', '/stories/generate', async (request) => {
   await generateStories(request);
-  return Response.json({ success: true });
+  return await getStoriesResponse(request);
 });
 
 addRoute(router, 'DELETE', '/stories/:id', async (request, params) => {

@@ -4,7 +4,7 @@ import { Button, H1, Text, YStack } from '~/components/core';
 import { useStoryContext } from '~/providers/StoryProvider';
 
 export function WelcomeView() {
-  const { generateMoreStories } = useStoryContext();
+  const { generateStories } = useStoryContext();
   return (
     <YStack minHeight="40%" jc="center" ai="center" px="$3" gap="$3">
       <H1 fontSize="$9">{t('Welcome')}</H1>
@@ -13,7 +13,7 @@ export function WelcomeView() {
         theme="blue"
         alignSelf="stretch"
         onPress={() => {
-          generateMoreStories();
+          generateStories();
         }}
       >
         {t('Generate stories with AI')}

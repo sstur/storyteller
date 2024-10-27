@@ -82,7 +82,6 @@ export async function generateStories(request: Request) {
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const result: Result = JSON.parse(rawJson) as never;
   const now = Date.now();
-  // const stories: Array<InsertStoryInput> = [];
   for (const { title, description, imagePrompt } of result.ideas) {
     const id = generateId(now);
     const story: InsertStoryInput = {
@@ -94,6 +93,5 @@ export async function generateStories(request: Request) {
     };
     // TODO: Kick off the image/content generation
     await db.insert(storiesTable).values(story);
-    // stories.push(story);
   }
 }

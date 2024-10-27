@@ -15,7 +15,9 @@ import {
   TextArea,
   YStack,
 } from '~/components/core';
+import { useStoryContext } from '~/providers/StoryProvider';
 import { api } from '~/support/api';
+import type { Story } from '~/types/Story';
 
 async function getSuggestedDescriptions() {
   const response = await api.get('/stories/suggestions');
@@ -24,6 +26,11 @@ async function getSuggestedDescriptions() {
     ? data.filter((item): item is string => typeof item === 'string')
     : [];
 }
+
+type Result = {
+  success: true;
+  stories: Array<Story>;
+};
 
 async function generateStory(description: string) {
   const response = await api.post('/stories/generate', {
@@ -34,11 +41,13 @@ async function generateStory(description: string) {
     const { error } = result;
     throw new Error(typeof error === 'string' ? error : t('Unexpected error'));
   }
-  return { success: true as const };
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  return result as Result;
 }
 
 function DescribeStoryForm(props: { suggestions: Array<string> }) {
   const { suggestions } = props;
+  const { setStories } = useStoryContext();
   const safeAreaInsets = useSafeAreaInsets();
   const keyboard = useAnimatedKeyboard();
   const inputRef = useRef<TextInput | null>(null);
@@ -48,8 +57,9 @@ function DescribeStoryForm(props: { suggestions: Array<string> }) {
   });
   const { mutate: send, isPending: isSubmitting } = useMutation({
     mutationFn: () => generateStory(description),
-    onSuccess: () => {
-      router.navigate({ pathname: '/', params: { refresh: 'true' } });
+    onSuccess: (result) => {
+      setStories(() => result.stories);
+      router.back();
     },
     onError: (error) => {
       Alert.alert(t('Error'), String(error));

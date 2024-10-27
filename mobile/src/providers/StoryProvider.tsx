@@ -22,7 +22,7 @@ type StoryContext = {
   state: StoryContextState;
   refetch: () => void;
   setStories: (updater: (stories: Array<Story>) => Array<Story>) => void;
-  generateMoreStories: () => void;
+  generateStories: () => void;
 };
 
 const Context = createContext<StoryContext | null>(null);
@@ -90,12 +90,6 @@ export function StoryProvider(props: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [generateMoreStories, { isGenerating }] = useGenerateStories({
-    onSuccess: () => {
-      fetchStories();
-    },
-  });
-
   const setStories = useCallback(
     (updater: (stories: Array<Story>) => Array<Story>) => {
       setState((state) => {
@@ -110,11 +104,17 @@ export function StoryProvider(props: { children: ReactNode }) {
     [],
   );
 
+  const [generateStories, { isGenerating }] = useGenerateStories({
+    onSuccess: (stories) => {
+      setStories(() => stories);
+    },
+  });
+
   const contextValue: StoryContext = {
     state,
     refetch: fetchStories,
     setStories,
-    generateMoreStories,
+    generateStories,
   };
   return (
     <Context.Provider value={contextValue}>
