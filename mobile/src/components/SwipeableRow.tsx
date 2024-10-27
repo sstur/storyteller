@@ -46,9 +46,17 @@ function RightActionsView(props: {
         }}
         {...viewProps}
       >
-        {isLoading ? <Spinner /> : <Text {...textProps}>{title}</Text>}
+        {isLoading ? <LoadingIndicator /> : <Text {...textProps}>{title}</Text>}
       </YStack>
     </Reanimated.View>
+  );
+}
+
+function LoadingIndicator() {
+  return (
+    <YStack p="$2" bg="rgba(0, 0, 0, 0.4)" borderRadius="$4">
+      <Spinner />
+    </YStack>
   );
 }
 
