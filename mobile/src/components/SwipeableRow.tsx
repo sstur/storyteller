@@ -54,7 +54,13 @@ function RightActionsView(props: {
 
 function LoadingIndicator() {
   return (
-    <YStack p="$2" bg="rgba(0, 0, 0, 0.4)" borderRadius="$4">
+    <YStack
+      flex={1}
+      alignSelf="stretch"
+      bg="rgba(0, 0, 0, 0.4)"
+      jc="center"
+      ai="center"
+    >
       <Spinner />
     </YStack>
   );
