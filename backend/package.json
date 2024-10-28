@@ -8,6 +8,7 @@
     "db:migration:generate": "drizzle-kit generate",
     "db:migrate:up": "drizzle-kit migrate",
     "db:seed": "tsx src/cli/seed.ts",
+    "tts": "tsx src/cli/tts.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint --max-warnings 0 .",
     "format": "prettier --write .",
