@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { eq } from 'drizzle-orm';
-import { loadMusicMetadata } from 'music-metadata';
 
 import { db } from '~/db/db';
 import type { Story } from '~/db/schema';
 import { storiesTable } from '~/db/schema';
 import { generateStoryContent } from '~/handlers/getStoryContent';
+import { getAudioDuration } from '~/support/getAudioDuration';
 import { HttpError } from '~/support/HttpError';
 import { openai } from '~/support/openai';
 import { saveFile } from '~/support/saveFile';
@@ -49,10 +49,7 @@ async function generateStoryAudio(story: Story) {
   const filename = `${id}-audio.mp3`;
   const mimeType = 'audio/mp3';
 
-  const { parseBuffer } = await loadMusicMetadata();
-  const audioInfo = await parseBuffer(audioData, mimeType, { duration: true });
-  const duration = Math.floor((audioInfo.format.duration ?? 0) * 1000);
-
+  const duration = await getAudioDuration(audioData, mimeType);
   const url = await saveFile(filename, mimeType, audioData);
   const audio: AudioFile = { url, mimeType, duration };
   await db.update(storiesTable).set({ audio }).where(eq(storiesTable.id, id));
