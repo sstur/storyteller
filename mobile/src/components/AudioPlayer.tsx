@@ -54,7 +54,6 @@ export function AudioPlayer(props: Props) {
   const [position, setPosition] = useState({ current: 0 });
 
   const play = useCallback(async () => {
-    console.log('PLAY');
     const sound = soundRef.current;
     const state = stateRef.current;
     if (state.name !== 'PAUSED' && state.name !== 'STOPPED') {
@@ -78,7 +77,6 @@ export function AudioPlayer(props: Props) {
   }, []);
 
   const pause = useCallback(async () => {
-    console.log('PAUSE');
     const sound = soundRef.current;
     const state = stateRef.current;
     if (state.name !== 'PLAYING') {
@@ -90,7 +88,6 @@ export function AudioPlayer(props: Props) {
   }, []);
 
   const resume = useCallback(async () => {
-    console.log('RESUME');
     const sound = soundRef.current;
     const state = stateRef.current;
     if (state.name !== 'PAUSED') {
@@ -108,7 +105,6 @@ export function AudioPlayer(props: Props) {
   }, []);
 
   const stop = useCallback(async () => {
-    console.log('STOP');
     const sound = soundRef.current;
     const state = stateRef.current;
     if (state.name === 'PLAYING' || state.name === 'PAUSED') {
@@ -124,27 +120,8 @@ export function AudioPlayer(props: Props) {
   const onPlaybackStatusUpdate = useCallback(
     (status: AVPlaybackStatus) => {
       if (!status.isLoaded) {
-        console.log('STATUS:', status);
         return;
       }
-      // const {
-      //   isLoaded,
-      //   isBuffering,
-      //   isLooping,
-      //   isPlaying,
-      //   didJustFinish,
-      //   audioPan,
-      //   positionMillis,
-      // } = status;
-      // console.log('STATUS:', {
-      //   isLoaded,
-      //   isBuffering,
-      //   isLooping,
-      //   isPlaying,
-      //   didJustFinish,
-      //   audioPan,
-      //   positionMillis,
-      // });
       const state = stateRef.current;
       setPosition(status.positionMillis);
 
@@ -170,7 +147,6 @@ export function AudioPlayer(props: Props) {
   );
 
   useEffect(() => {
-    console.log({ uri });
     const sound = soundRef.current;
     sound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
     sound
@@ -185,11 +161,9 @@ export function AudioPlayer(props: Props) {
       const state = stateRef.current;
       try {
         if (state.name === 'PLAYING' || state.name === 'PAUSED') {
-          console.log('STOP');
           await sound.stopAsync();
         }
       } finally {
-        console.log('UNLOAD');
         void sound.unloadAsync();
       }
     };
