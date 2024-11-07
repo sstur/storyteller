@@ -1,20 +1,18 @@
+import { PassThrough, Readable } from 'stream';
+
+import { ffmpeg } from '~/support/ffmpeg';
+import { getPcmAudioDuration } from '~/support/getPcmAudioDuration';
 import { openai } from '~/support/openai';
 
-import { getPcmAudioDuration } from './getPcmAudioDuration';
-
-// https://platform.openai.com/docs/api-reference/chat/create#chat-create-audio
 const supportedFormats = {
-  wav: '.wav', // 24000 hz, mono, s16le
-  mp3: '.mp3', // This will be a variable bitrate mp3
-  flac: '.flac',
-  opus: '.opus',
-  pcm16: '.pcm', // 24000 hz, mono, s16le
+  mp3: { fileExtension: '.mp3', mimeType: 'audio/mp3' },
+  wav: { fileExtension: '.wav', mimeType: 'audio/wav' },
 };
 
 type Format = keyof typeof supportedFormats;
 
 type Options = {
-  format: Format;
+  outputFormat: Format;
 };
 
 const prompt = `
@@ -22,15 +20,14 @@ Read the following kids story in a fun, fast-paced and cheerful way.
 `.trim();
 
 export async function generateAudio(content: string, options: Options) {
-  const { format } = options;
+  const { outputFormat } = options;
 
   const completion = await openai.chat.completions.create({
     model: 'gpt-4o-audio-preview',
-    // @ts-ignore
     modalities: ['text', 'audio'],
     audio: {
       voice: 'alloy',
-      format,
+      format: 'pcm16',
     },
     messages: [
       {
@@ -44,10 +41,38 @@ export async function generateAudio(content: string, options: Options) {
     completion.choices[0]?.message.audio?.data ?? '',
     'base64',
   );
+  const duration = getPcmAudioDuration(audioData);
 
-  const fileExtension = supportedFormats[format];
+  const [outputStream] = await convertAudio(audioData, { outputFormat });
 
-  const duration = format === 'pcm16' ? getPcmAudioDuration(audioData) : 0;
+  const { fileExtension, mimeType } = supportedFormats[outputFormat];
+  return [outputStream, { duration, fileExtension, mimeType }] as const;
+}
 
-  return [audioData, { fileExtension, duration }] as const;
+function convertAudio(
+  input: Readable | Buffer,
+  options: { outputFormat: Format },
+) {
+  const { outputFormat } = options;
+  const readableStream = Buffer.isBuffer(input)
+    ? Readable.from([input])
+    : input;
+
+  return new Promise<[Readable]>((resolve, reject) => {
+    const outputStream = new PassThrough();
+    ffmpeg()
+      .input(readableStream)
+      .inputOptions(['-f', 's16le', '-ar', '24000', '-ac', '1'])
+      .outputOptions(outputFormat === 'mp3' ? ['-ab', '96k'] : [])
+      .outputFormat(outputFormat)
+      .on('start', (_commandLine) => {
+        resolve([outputStream]);
+      })
+      .on('error', (error) => {
+        reject(error);
+        outputStream.destroy();
+      })
+      .output(outputStream)
+      .run();
+  });
 }

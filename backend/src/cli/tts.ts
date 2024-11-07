@@ -20,11 +20,9 @@ async function main() {
   }
   console.log('Generating audio...');
 
-  const [audioData, { duration, fileExtension }] = await generateAudio(
+  const [readableStream, { duration, fileExtension }] = await generateAudio(
     content,
-    {
-      format: 'pcm16',
-    },
+    { outputFormat: 'mp3' },
   );
   console.log(`Generated audio of duration ${duration}ms`);
   const resolvedOutputFile = resolve(
@@ -33,7 +31,7 @@ async function main() {
       ? outputFile
       : outputFile + fileExtension,
   );
-  await writeFile(resolvedOutputFile, audioData);
+  await writeFile(resolvedOutputFile, readableStream);
   console.log(`Audio saved to "${resolvedOutputFile}"`);
 }
 

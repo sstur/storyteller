@@ -21,14 +21,13 @@ async function generateStoryAudio(story: Story) {
 
   const content = paragraphs.join('\n\n');
 
-  const [audioData, { duration }] = await generateAudio(content, {
-    format: 'pcm16',
-  });
+  const [readableStream, { duration, mimeType, fileExtension }] =
+    await generateAudio(content, {
+      outputFormat: 'mp3',
+    });
 
-  // TODO: Convert to mp3
-  const filename = `${id}-audio.mp3`;
-  const mimeType = 'audio/mp3';
-  const url = await saveFile(filename, mimeType, mp3Data);
+  const filename = `${id}a-audio` + fileExtension;
+  const url = await saveFile(filename, mimeType, readableStream);
   const audio: AudioFile = { url, mimeType, duration };
   await db.update(storiesTable).set({ audio }).where(eq(storiesTable.id, id));
   return audio;
@@ -74,6 +73,8 @@ export async function getStoryAudioPayloadResponse(
   params: { id: string },
 ): Promise<Response> {
   const { url } = await getStoryAudioById(params.id);
+  // TODO: Remove this
+  // eslint-disable-next-line no-console
   console.log({ id: params.id, url });
   const response = await fetch(url);
 

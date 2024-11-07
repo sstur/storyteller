@@ -3,6 +3,7 @@
     "target": "es2022",
     "lib": ["es2022"],
     "module": "commonjs",
+    "esModuleInterop": true,
     "outDir": "lib",
     "skipLibCheck": true,
     "allowJs": true,
