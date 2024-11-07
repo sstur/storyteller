@@ -4,16 +4,11 @@ import { db } from '~/db/db';
 import type { Story } from '~/db/schema';
 import { storiesTable } from '~/db/schema';
 import { generateStoryContent } from '~/handlers/getStoryContent';
-import { getPcmAudioDuration } from '~/support/getPcmAudioDuration';
+import { generateAudio } from '~/support/generateAudio';
 import { HttpError } from '~/support/HttpError';
-import { openai } from '~/support/openai';
 import { saveFile } from '~/support/saveFile';
 import { store } from '~/support/store';
 import type { AudioFile } from '~/types/AudioFile';
-
-const prompt = `
-Read the following kids story in a fun, fast-paced and cheerful way.
-`.trim();
 
 async function generateStoryAudio(story: Story) {
   const { id } = story;
@@ -26,28 +21,10 @@ async function generateStoryAudio(story: Story) {
 
   const content = paragraphs.join('\n\n');
 
-  const completion = await openai.chat.completions.create({
-    model: 'gpt-4o-audio-preview',
-    // @ts-ignore
-    modalities: ['text', 'audio'],
-    audio: {
-      voice: 'alloy',
-      format: 'pcm16', // 24000 hz, mono, s16le
-    },
-    messages: [
-      {
-        role: 'user',
-        content: prompt + '\n\n' + content,
-      },
-    ],
+  const [audioData, { duration }] = await generateAudio(content, {
+    format: 'pcm16',
   });
 
-  const audioData = Buffer.from(
-    completion.choices[0]?.message.audio?.data ?? '',
-    'base64',
-  );
-
-  const duration = getPcmAudioDuration(audioData);
   // TODO: Convert to mp3
   const filename = `${id}-audio.mp3`;
   const mimeType = 'audio/mp3';
