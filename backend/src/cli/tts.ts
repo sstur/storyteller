@@ -4,6 +4,7 @@ import '~/support/dotenv';
 import { writeFile } from 'fs/promises';
 import { resolve } from 'path';
 
+import { getPcmAudioDuration } from '~/support/getPcmAudioDuration';
 import { openai } from '~/support/openai';
 
 // https://platform.openai.com/docs/api-reference/chat/create#chat-create-audio
@@ -17,7 +18,7 @@ const supportedFormats = {
 
 type Format = keyof typeof supportedFormats;
 
-const format: Format = 'wav';
+const format: Format = 'pcm16';
 
 const expectedExtension = supportedFormats[format];
 
@@ -61,7 +62,8 @@ async function main() {
     completion.choices[0]?.message.audio.data,
     'base64',
   );
-  console.log(`Generated audio of byte length ${audioData.length}`);
+  const duration = getPcmAudioDuration(audioData);
+  console.log(`Generated audio of duration ${duration}ms`);
   const resolvedOutputFile = resolve(process.cwd(), outputFile);
   await writeFile(resolvedOutputFile, audioData);
   console.log(`Audio saved to "${resolvedOutputFile}"`);

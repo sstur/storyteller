@@ -5,7 +5,7 @@ import { db } from '~/db/db';
 import type { Story } from '~/db/schema';
 import { storiesTable } from '~/db/schema';
 import { generateStoryContent } from '~/handlers/getStoryContent';
-import { getAudioDuration } from '~/support/getAudioDuration';
+import { getPcmAudioDuration } from '~/support/getPcmAudioDuration';
 import { HttpError } from '~/support/HttpError';
 import { openai } from '~/support/openai';
 import { saveFile } from '~/support/saveFile';
@@ -31,7 +31,10 @@ async function generateStoryAudio(story: Story) {
     model: 'gpt-4o-audio-preview',
     // @ts-ignore
     modalities: ['text', 'audio'],
-    audio: { voice: 'alloy', format: 'mp3' },
+    audio: {
+      voice: 'alloy',
+      format: 'pcm16', // 24000 hz, mono, s16le
+    },
     messages: [
       {
         role: 'user',
@@ -46,11 +49,12 @@ async function generateStoryAudio(story: Story) {
     completion.choices[0]?.message.audio.data,
     'base64',
   );
+
+  const duration = getPcmAudioDuration(audioData);
+  // TODO: Convert to mp3
   const filename = `${id}-audio.mp3`;
   const mimeType = 'audio/mp3';
-
-  const duration = await getAudioDuration(audioData, mimeType);
-  const url = await saveFile(filename, mimeType, audioData);
+  const url = await saveFile(filename, mimeType, mp3Data);
   const audio: AudioFile = { url, mimeType, duration };
   await db.update(storiesTable).set({ audio }).where(eq(storiesTable.id, id));
   return audio;
@@ -96,6 +100,7 @@ export async function getStoryAudioPayloadResponse(
   params: { id: string },
 ): Promise<Response> {
   const { url } = await getStoryAudioById(params.id);
+  console.log({ id: params.id, url });
   const response = await fetch(url);
 
   return new Response(response.body, {
