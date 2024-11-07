@@ -1,40 +1,63 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import type { MutableRefObject } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState as useStateReact,
+} from 'react';
 import {
   Pause as IconPause,
   Play as IconPlay,
   Square as IconStop,
 } from '@tamagui/lucide-icons';
+import type { AVPlaybackStatus } from 'expo-av';
 import { Audio } from 'expo-av';
 
 import type { ButtonProps } from '~/components/core';
 import { Button, Spinner, Text, XStack, YStack } from '~/components/core';
 
 type State =
-  | { name: 'IDLE' }
+  | { name: 'INITIALIZING' }
+  | { name: 'STOPPED' }
   | { name: 'STARTING_PLAYBACK' }
   | { name: 'ERROR'; error: unknown }
-  | { name: 'PLAYING'; sound: Audio.Sound; position: number }
-  | {
-      name: 'PAUSED';
-      substate: 'PAUSING' | 'PAUSED' | 'RESUMING';
-      sound: Audio.Sound;
-      position: number;
-    }
+  | { name: 'PLAYING' }
+  | { name: 'PAUSING' }
+  | { name: 'PAUSED' }
+  | { name: 'RESUMING' }
   | { name: 'STOPPING' };
 
 type Props = { id: string; uri: string; duration: number };
 
+function useState<T>(stateRef: MutableRefObject<T>) {
+  const [state, setState] = useStateReact(() => {
+    return stateRef.current;
+  });
+  const setStateWithRef = useCallback(
+    (value: T) => {
+      stateRef.current = value;
+      setState(value);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+  return [state, setStateWithRef] as const;
+}
+
 export function AudioPlayer(props: Props) {
   const { uri, duration } = props;
-  const [state, setState] = useState<State>({ name: 'IDLE' });
-  const stateRef = useRef<State>(state);
-  useEffect(() => {
-    stateRef.current = state;
-  }, [state]);
+  const [sound] = useStateReact(() => new Audio.Sound());
+  const soundRef = useRef(sound);
+
+  const stateRef = useRef<State>({ name: 'INITIALIZING' });
+  const [state, setState] = useState(stateRef);
+  const [position, setPosition] = useState({ current: 0 });
 
   const play = useCallback(async () => {
+    console.log('PLAY');
+    const sound = soundRef.current;
     const state = stateRef.current;
-    if (state.name !== 'IDLE') {
+    if (state.name !== 'PAUSED' && state.name !== 'STOPPED') {
       return;
     }
     try {
@@ -43,83 +66,41 @@ export function AudioPlayer(props: Props) {
         allowsRecordingIOS: false,
         playsInSilentModeIOS: true,
       });
-      const { sound, status } = await Audio.Sound.createAsync(
-        { uri },
-        { shouldPlay: true },
-        (status) => {
-          if (!status.isLoaded) {
-            return;
-          }
-          const state = stateRef.current;
-
-          const isStartingPlayback = state.name === 'STARTING_PLAYBACK';
-          const isResumingPlayback =
-            state.name === 'PAUSED' && state.substate === 'RESUMING';
-          if ((isStartingPlayback || isResumingPlayback) && status.isPlaying) {
-            const position = status.positionMillis;
-            setState({ name: 'PLAYING', sound, position });
-            return;
-          }
-
-          if (state.name === 'PLAYING' && !status.isPlaying) {
-            // Playback is complete
-            void stop();
-            return;
-          }
-
-          if (state.name === 'PLAYING') {
-            const position = status.positionMillis;
-            setState({ name: 'PLAYING', sound, position });
-            return;
-          }
-        },
-        false,
-      );
+      const status = await sound.playAsync();
       if (status.isLoaded && status.isPlaying) {
         setState({
           name: 'PLAYING',
-          sound,
-          position: status.positionMillis,
         });
       }
     } catch (error) {
       setState({ name: 'ERROR', error });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const pause = useCallback(async () => {
+    console.log('PAUSE');
+    const sound = soundRef.current;
     const state = stateRef.current;
     if (state.name !== 'PLAYING') {
       return;
     }
-    const { sound, position } = state;
-    setState({ name: 'PAUSED', substate: 'PAUSING', sound, position });
-    // TODO: This could cause onStatus callback to fire before first updating stateRef
-    const status = await sound.pauseAsync();
-    setState({
-      name: 'PAUSED',
-      substate: 'PAUSED',
-      sound,
-      position: status.isLoaded ? status.positionMillis : position,
-    });
+    setState({ name: 'PAUSING' });
+    await sound.pauseAsync();
+    setState({ name: 'PAUSED' });
   }, []);
 
   const resume = useCallback(async () => {
+    console.log('RESUME');
+    const sound = soundRef.current;
     const state = stateRef.current;
     if (state.name !== 'PAUSED') {
       return;
     }
     try {
-      const { sound, position } = state;
-      setState({ name: 'PAUSED', substate: 'RESUMING', sound, position });
-      const status = await sound.playFromPositionAsync(position);
+      setState({ name: 'RESUMING' });
+      const status = await sound.playAsync();
       if (status.isLoaded && status.isPlaying) {
-        setState({
-          name: 'PLAYING',
-          sound,
-          position: status.positionMillis,
-        });
+        setState({ name: 'PLAYING' });
       }
     } catch (error) {
       setState({ name: 'ERROR', error });
@@ -127,33 +108,107 @@ export function AudioPlayer(props: Props) {
   }, []);
 
   const stop = useCallback(async () => {
+    console.log('STOP');
+    const sound = soundRef.current;
     const state = stateRef.current;
     if (state.name === 'PLAYING' || state.name === 'PAUSED') {
-      const { sound } = state;
       setState({ name: 'STOPPING' });
       try {
-        await sound.unloadAsync();
+        await sound.stopAsync();
       } finally {
-        setState({ name: 'IDLE' });
+        setState({ name: 'STOPPED' });
       }
     }
   }, []);
 
-  useEffect(() => {
-    return () => {
+  const onPlaybackStatusUpdate = useCallback(
+    (status: AVPlaybackStatus) => {
+      if (!status.isLoaded) {
+        console.log('STATUS:', status);
+        return;
+      }
+      // const {
+      //   isLoaded,
+      //   isBuffering,
+      //   isLooping,
+      //   isPlaying,
+      //   didJustFinish,
+      //   audioPan,
+      //   positionMillis,
+      // } = status;
+      // console.log('STATUS:', {
+      //   isLoaded,
+      //   isBuffering,
+      //   isLooping,
+      //   isPlaying,
+      //   didJustFinish,
+      //   audioPan,
+      //   positionMillis,
+      // });
       const state = stateRef.current;
-      if (state.name === 'PLAYING' || state.name === 'PAUSED') {
-        const { sound } = state;
+      setPosition(status.positionMillis);
+
+      const isStartingPlayback = state.name === 'STARTING_PLAYBACK';
+      const isResumingPlayback = state.name === 'RESUMING';
+      if ((isStartingPlayback || isResumingPlayback) && status.isPlaying) {
+        setState({ name: 'PLAYING' });
+        return;
+      }
+
+      if (state.name === 'PLAYING' && !status.isPlaying) {
+        // Playback is complete
+        void stop();
+        return;
+      }
+
+      if (state.name === 'PLAYING') {
+        setState({ name: 'PLAYING' });
+        return;
+      }
+    },
+    [stop],
+  );
+
+  useEffect(() => {
+    console.log({ uri });
+    const sound = soundRef.current;
+    sound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
+    sound
+      .loadAsync({ uri })
+      .then(() => {
+        setState({ name: 'STOPPED' });
+      })
+      .catch((error) => {
+        setState({ name: 'ERROR', error });
+      });
+    const unload = async () => {
+      const state = stateRef.current;
+      try {
+        if (state.name === 'PLAYING' || state.name === 'PAUSED') {
+          console.log('STOP');
+          await sound.stopAsync();
+        }
+      } finally {
+        console.log('UNLOAD');
         void sound.unloadAsync();
       }
     };
+    return () => {
+      void unload();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
+    // TODO:
+    // state.name === 'STARTING_PLAYBACK'
+    // state.name === 'PAUSING'
+    // state.name === 'RESUMING'
+    // state.name === 'STOPPING'
     <YStack>
       {state.name === 'ERROR' ? (
         <Text>{String(state.error)}</Text>
-      ) : state.name === 'STOPPING' ? (
+      ) : state.name === 'INITIALIZING' ? (
         <Spinner />
       ) : state.name === 'PLAYING' ? (
         <XStack gap="$3">
@@ -163,7 +218,7 @@ export function AudioPlayer(props: Props) {
             onPress={() => pause()}
           />
           <XStack flex={1} jc="center" ai="center">
-            <Text>{formatProgress(state.position, duration)}</Text>
+            <Text>{formatProgress(position, duration)}</Text>
           </XStack>
           <IconButton
             label={t('Stop')}
@@ -179,7 +234,7 @@ export function AudioPlayer(props: Props) {
             onPress={() => resume()}
           />
           <XStack flex={1} jc="center" ai="center">
-            <Text>{formatProgress(state.position, duration)}</Text>
+            <Text>{formatProgress(position, duration)}</Text>
           </XStack>
           <IconButton
             label={t('Stop')}
