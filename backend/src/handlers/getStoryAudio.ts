@@ -73,9 +73,6 @@ export async function getStoryAudioPayloadResponse(
   params: { id: string },
 ): Promise<Response> {
   const { url } = await getStoryAudioById(params.id);
-  // TODO: Remove this
-  // eslint-disable-next-line no-console
-  console.log({ id: params.id, url });
   const response = await fetch(url);
 
   return new Response(response.body, {
