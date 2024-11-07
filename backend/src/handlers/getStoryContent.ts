@@ -34,8 +34,6 @@ export async function generateStoryContent(story: Story) {
       },
     ],
     response_format: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       type: 'json_schema',
       json_schema: {
         name: 'story_content_schema',

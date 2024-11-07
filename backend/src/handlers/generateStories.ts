@@ -53,7 +53,7 @@ const resultJsonSchema = toJsonSchema(resultSchema);
 
 export async function generateStories(request: Request) {
   const input = parseBody(await request.json());
-  const count = input.type === 'AI' ? input.count ?? defaultCount : 1;
+  const count = input.type === 'AI' ? (input.count ?? defaultCount) : 1;
   let prompt = basePrompt.replace('{count}', String(count));
   if (input.type === 'CUSTOM') {
     prompt += `\nThe story idea should be based on the following high-level description: ${input.description}`;
@@ -69,8 +69,6 @@ export async function generateStories(request: Request) {
       },
     ],
     response_format: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       type: 'json_schema',
       json_schema: {
         name: 'story_ideas_schema',

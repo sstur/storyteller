@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { eq } from 'drizzle-orm';
 
 import { db } from '~/db/db';
@@ -44,9 +43,7 @@ async function generateStoryAudio(story: Story) {
   });
 
   const audioData = Buffer.from(
-    // @ts-ignore
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-    completion.choices[0]?.message.audio.data,
+    completion.choices[0]?.message.audio?.data ?? '',
     'base64',
   );
 
