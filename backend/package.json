@@ -22,7 +22,7 @@
     "@valibot/to-json-schema": "^0.2.1",
     "drizzle-kit": "^0.26.2",
     "drizzle-orm": "^0.35.3",
-    "openai": "^4.52.7",
+    "openai": "^4.71.1",
     "rou3": "^0.5.1",
     "tsx": "^4.19.1",
     "valibot": "^0.42.1"
