@@ -11,6 +11,8 @@ import { store } from '~/support/store';
 
 type Image = {
   url: string;
+  width: number;
+  height: number;
   content_type: string;
 };
 
@@ -40,8 +42,10 @@ export async function generateImage(story: Story) {
 
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const images = Object(result.data).images as Array<Image>;
-  const filename = `${story.id}-cover.png`;
-  const imageUrl = await saveFileFromUrl(filename, images[0]?.url ?? '');
+  const url = images[0]?.url ?? '';
+  const fileExt = url.split('.').pop() ?? '';
+  const filename = `${story.id}-cover` + (fileExt ? `.${fileExt}` : '');
+  const imageUrl = await saveFileFromUrl(filename, url);
   await db
     .update(storiesTable)
     .set({ imageUrl })
